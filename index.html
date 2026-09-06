@@ -15,924 +15,1722 @@
 
 body{
     overflow:hidden;
-    background:#020205;
-    font-family:Arial, Helvetica, sans-serif;
+    background:#010204;
+    font-family:Arial,Helvetica,sans-serif;
     color:white;
 }
 
-#canvas{
+/* MAIN CANVAS */
+
+#fxCanvas{
     position:fixed;
     inset:0;
-    width:100vw;
-    height:100vh;
-    background:
-        radial-gradient(circle at center, #08080d 0%, #020205 60%, #000 100%);
-}
-
-#cameraBox{
-    position:fixed;
-    left:25px;
-    bottom:25px;
-    width:220px;
-    height:165px;
-
-    border:1px solid rgba(120,220,255,.45);
-    border-radius:14px;
-
-    overflow:hidden;
-    background:#000;
-
-    box-shadow:
-        0 0 20px rgba(0,200,255,.2),
-        inset 0 0 20px rgba(0,0,0,.8);
-
-    z-index:10;
-}
-
-#video{
     width:100%;
     height:100%;
-    object-fit:cover;
-    transform:scaleX(-1);
-    opacity:.85;
+    z-index:1;
 }
 
-#cameraLabel{
-    position:absolute;
-    bottom:0;
-    left:0;
-    width:100%;
+/* DARK CINEMATIC OVERLAY */
 
-    padding:7px;
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:5;
 
-    font-size:10px;
-    letter-spacing:2px;
-    text-align:center;
-
-    background:rgba(0,0,0,.7);
-    color:#9cecff;
+    background:
+    radial-gradient(circle at center,
+    transparent 20%,
+    rgba(0,0,0,.25) 70%,
+    rgba(0,0,0,.75) 100%);
 }
+
+
+/* TITLE */
 
 #title{
     position:fixed;
-    top:35px;
+    top:42px;
     left:50%;
     transform:translateX(-50%);
     text-align:center;
-    z-index:20;
-    pointer-events:none;
+    z-index:10;
 }
 
 #title h1{
-    font-size:24px;
-    letter-spacing:9px;
-    font-weight:600;
-    text-shadow:0 0 20px rgba(150,220,255,.5);
+    font-size:27px;
+    letter-spacing:7px;
+    color:#e7f6ff;
+
+    text-shadow:
+    0 0 15px rgba(150,220,255,.5);
 }
 
 #title p{
-    margin-top:8px;
+    margin-top:9px;
+
     font-size:8px;
-    letter-spacing:4px;
-    color:#76dfff;
+    letter-spacing:5px;
+
+    color:#73dfff;
 }
 
-#status{
+
+/* CAMERA */
+
+#cameraBox{
     position:fixed;
-    bottom:30px;
-    left:50%;
-    transform:translateX(-50%);
 
-    font-size:11px;
-    letter-spacing:3px;
+    left:25px;
+    bottom:28px;
 
-    color:#a7eaff;
-    opacity:.7;
+    width:280px;
+    height:205px;
+
+    border-radius:17px;
+
+    overflow:hidden;
 
     z-index:20;
+
+    background:#000;
+
+    border:1px solid rgba(80,220,255,.45);
+
+    box-shadow:
+    0 0 30px rgba(0,200,255,.18),
+    inset 0 0 30px rgba(0,0,0,.8);
 }
 
-#controls{
+#video{
+    position:absolute;
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+    transform:scaleX(-1);
+
+    opacity:.82;
+}
+
+#handCanvas{
+    position:absolute;
+    width:100%;
+    height:100%;
+
+    transform:scaleX(-1);
+
+    z-index:3;
+}
+
+#cameraLabel{
+
+    position:absolute;
+
+    bottom:0;
+    left:0;
+
+    width:100%;
+
+    padding:9px;
+
+    text-align:center;
+
+    background:
+    linear-gradient(
+    transparent,
+    rgba(0,0,0,.9)
+    );
+
+    font-size:10px;
+
+    letter-spacing:3px;
+
+    color:#9deaff;
+
+    z-index:5;
+}
+
+
+/* STATUS */
+
+#status{
+
     position:fixed;
-    right:25px;
-    bottom:25px;
 
-    display:flex;
-    gap:8px;
-    z-index:30;
-}
+    bottom:38px;
 
-button{
-    background:rgba(10,10,20,.75);
-    border:1px solid rgba(255,255,255,.2);
-    color:white;
+    left:50%;
 
-    padding:10px 14px;
-    border-radius:8px;
+    transform:translateX(-50%);
 
-    cursor:pointer;
+    z-index:20;
+
     font-size:11px;
+
+    letter-spacing:4px;
+
+    color:#9bdff5;
+
+    text-shadow:
+    0 0 15px #00cfff;
+}
+
+
+/* TECHNIQUE NAME */
+
+#technique{
+
+    position:fixed;
+
+    top:150px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    z-index:30;
+
+    text-align:center;
+
+    opacity:0;
+
+    transition:.4s;
+
+    pointer-events:none;
+}
+
+#technique.active{
+    opacity:1;
+}
+
+#technique h2{
+
+    font-size:25px;
+
+    letter-spacing:8px;
+
+    text-shadow:
+    0 0 20px currentColor;
+}
+
+#technique p{
+
+    margin-top:8px;
+
+    font-size:9px;
+
+    letter-spacing:4px;
+}
+
+
+/* HELP */
+
+#help{
+
+    position:fixed;
+
+    right:25px;
+    bottom:28px;
+
+    z-index:20;
+
+    text-align:right;
+
+    color:rgba(255,255,255,.4);
+
+    font-size:10px;
+
+    line-height:1.8;
+
     letter-spacing:1px;
-
-    transition:.2s;
 }
 
-button:hover{
-    transform:translateY(-2px);
-    border-color:#fff;
-}
 </style>
 </head>
 
 <body>
 
-<canvas id="canvas"></canvas>
+
+<canvas id="fxCanvas"></canvas>
+
 
 <div id="title">
-    <h1>呪術廻戦</h1>
-    <p>CURSED TECHNIQUE EXPERIENCE</p>
+
+<h1>呪 術 廻 戦</h1>
+
+<p>CURSED TECHNIQUE EXPERIENCE</p>
+
 </div>
+
+
+<div id="technique">
+
+<h2 id="techniqueTitle"></h2>
+
+<p id="techniqueSub"></p>
+
+</div>
+
 
 <div id="cameraBox">
-    <video id="video" autoplay playsinline></video>
-    <div id="cameraLabel">AR POSE DETECTION</div>
+
+<video
+id="video"
+autoplay
+playsinline>
+</video>
+
+<canvas id="handCanvas"></canvas>
+
+<div id="cameraLabel">
+AR HAND DETECTION
 </div>
+
+</div>
+
 
 <div id="status">
-    SYSTEM READY
-</div>
-
-<div id="controls">
-    <button onclick="infinityVoid()">INFINITY</button>
-    <button onclick="redTechnique()">RED</button>
-    <button onclick="resetScene()">RESET</button>
+INITIALIZING SYSTEM
 </div>
 
 
-<script>
+<div id="help">
+
+GOJO → TWO FINGERS<br>
+SUKUNA → OPEN PALM<br>
+FIST → RESET
+
+</div>
+
+
+
+<!-- MEDIAPIPE -->
+
+<script type="module">
+
+import {
+
+FilesetResolver,
+HandLandmarker
+
+}
+
+from
+"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+
 
 /* =====================================================
-   CANVAS
+   ELEMENTS
 ===================================================== */
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const video =
+document.getElementById("video");
 
-let W, H;
+const handCanvas =
+document.getElementById("handCanvas");
+
+const handCtx =
+handCanvas.getContext("2d");
+
+const fxCanvas =
+document.getElementById("fxCanvas");
+
+const ctx =
+fxCanvas.getContext("2d");
+
+const status =
+document.getElementById("status");
+
+const technique =
+document.getElementById("technique");
+
+const techniqueTitle =
+document.getElementById("techniqueTitle");
+
+const techniqueSub =
+document.getElementById("techniqueSub");
+
+
+let W;
+let H;
+
+
+/* =====================================================
+   RESIZE
+===================================================== */
 
 function resize(){
 
-    W = canvas.width = window.innerWidth * devicePixelRatio;
-    H = canvas.height = window.innerHeight * devicePixelRatio;
+    W=window.innerWidth;
+    H=window.innerHeight;
 
-    canvas.style.width = window.innerWidth + "px";
-    canvas.style.height = window.innerHeight + "px";
+    fxCanvas.width=W;
+    fxCanvas.height=H;
 
-    ctx.setTransform(
-        devicePixelRatio,
-        0,
-        0,
-        devicePixelRatio,
-        0,
-        0
-    );
-
-    W = window.innerWidth;
-    H = window.innerHeight;
 }
 
 resize();
 
-window.addEventListener("resize", resize);
+window.addEventListener(
+"resize",
+resize
+);
 
 
 /* =====================================================
    WEBCAM
 ===================================================== */
 
-const video = document.getElementById("video");
+async function startCamera(){
 
-navigator.mediaDevices.getUserMedia({
-    video:{
-        width:{ideal:1280},
-        height:{ideal:720},
-        facingMode:"user"
-    },
-    audio:false
-})
-.then(stream=>{
-    video.srcObject = stream;
-})
-.catch(err=>{
-    document.getElementById("status").innerText =
-    "CAMERA ACCESS REQUIRED";
+try{
+
+const stream =
+await navigator.mediaDevices.getUserMedia({
+
+video:{
+width:{ideal:1280},
+height:{ideal:720},
+facingMode:"user"
+},
+
+audio:false
+
 });
+
+video.srcObject=stream;
+
+video.onloadedmetadata=()=>{
+
+handCanvas.width=
+video.videoWidth;
+
+handCanvas.height=
+video.videoHeight;
+
+status.innerText=
+"CAMERA ONLINE";
+
+};
+
+}
+
+catch(error){
+
+status.innerText=
+"CAMERA ACCESS DENIED";
+
+console.error(error);
+
+}
+
+}
+
+await startCamera();
 
 
 /* =====================================================
-   PARTICLE SYSTEM
+   PARTICLES
 ===================================================== */
 
-let particles = [];
-let stars = [];
+let particles=[];
 
-let mode = "idle";
-let animationStart = 0;
+let mode="idle";
+
+let lastModeTime=0;
 
 
-/* Particle class */
+/* PARTICLE */
 
 class Particle{
 
-    constructor(x,y,color,size){
+constructor(
+x,
+y,
+color,
+size
+){
 
-        this.x=x;
-        this.y=y;
+this.x=x;
+this.y=y;
 
-        this.tx=x;
-        this.ty=y;
+this.tx=x;
+this.ty=y;
 
-        this.vx=0;
-        this.vy=0;
+this.vx=0;
+this.vy=0;
 
-        this.size=size || 1;
-        this.color=color || "255,255,255";
+this.color=color;
 
-        this.alpha=Math.random();
+this.size=size;
 
-        this.speed=.02 + Math.random()*.05;
+this.alpha=
+Math.random()*.8+.2;
 
-        this.life=1;
-        this.decay=.001 + Math.random()*.003;
+this.speed=
+Math.random()*.04+.015;
 
-        this.angle=Math.random()*Math.PI*2;
+this.angle=
+Math.random()*Math.PI*2;
 
-        this.orbit=Math.random()*100;
-    }
+this.radius=0;
 
-
-    update(){
-
-        this.x += (this.tx-this.x)*this.speed;
-        this.y += (this.ty-this.y)*this.speed;
-
-        this.x += this.vx;
-        this.y += this.vy;
-
-        this.vx *= .97;
-        this.vy *= .97;
-    }
-
-
-    draw(){
-
-        ctx.beginPath();
-
-        ctx.fillStyle =
-        `rgba(${this.color},${this.alpha})`;
-
-        ctx.shadowBlur = this.size * 5;
-
-        ctx.shadowColor =
-        `rgb(${this.color})`;
-
-        ctx.arc(
-            this.x,
-            this.y,
-            this.size,
-            0,
-            Math.PI*2
-        );
-
-        ctx.fill();
-
-        ctx.shadowBlur=0;
-    }
+this.type="normal";
 
 }
 
 
+update(){
+
+this.x+=
+(this.tx-this.x)*
+this.speed;
+
+this.y+=
+(this.ty-this.y)*
+this.speed;
+
+this.x+=this.vx;
+this.y+=this.vy;
+
+this.vx*=.96;
+this.vy*=.96;
+
+}
+
+
+draw(){
+
+ctx.beginPath();
+
+ctx.fillStyle=
+`rgba(${this.color},${this.alpha})`;
+
+ctx.shadowBlur=
+this.size*5;
+
+ctx.shadowColor=
+`rgb(${this.color})`;
+
+ctx.arc(
+this.x,
+this.y,
+this.size,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.shadowBlur=0;
+
+}
+
+}
+
+
+
 /* =====================================================
-   CREATE STAR FIELD
+   CLEAR
 ===================================================== */
 
-function createStars(){
+function clearParticles(){
 
-    stars=[];
-
-    for(let i=0;i<1800;i++){
-
-        stars.push({
-
-            x:Math.random()*W,
-            y:Math.random()*H,
-
-            size:Math.random()*1.8+.2,
-
-            alpha:Math.random(),
-
-            speed:Math.random()*.25+.02
-
-        });
-
-    }
+particles=[];
 
 }
 
-createStars();
-
-
-function drawStars(){
-
-    for(const s of stars){
-
-        s.y += s.speed;
-
-        if(s.y>H){
-            s.y=0;
-            s.x=Math.random()*W;
-        }
-
-        ctx.fillStyle=
-        `rgba(190,220,255,${s.alpha*.7})`;
-
-        ctx.fillRect(
-            s.x,
-            s.y,
-            s.size,
-            s.size
-        );
-    }
-}
 
 
 /* =====================================================
+   SHOW TECHNIQUE
+===================================================== */
+
+function showTechnique(
+title,
+sub,
+color
+){
+
+techniqueTitle.innerText=title;
+
+techniqueSub.innerText=sub;
+
+technique.style.color=color;
+
+technique.classList.add("active");
+
+setTimeout(()=>{
+
+technique.classList.remove("active");
+
+},3500);
+
+}
+
+
+
+/* =====================================================
+   GOJO
    INFINITY VOID
 ===================================================== */
 
-function infinityVoid(){
+function activateInfinity(){
 
-    resetParticles();
+const now=Date.now();
 
-    mode="infinity";
+if(mode==="infinity")
+return;
 
-    animationStart=performance.now();
+if(now-lastModeTime<3000)
+return;
 
-    document.getElementById("status").innerText =
-    "∞ INFINITY VOID ACTIVATED";
+lastModeTime=now;
 
+clearParticles();
 
-    const cx=W/2;
-    const cy=H/2;
+mode="infinity";
 
-    /*
-    MAIN PARTICLE RING
-    */
+status.innerText=
+"∞ INFINITY VOID";
 
-    for(let i=0;i<3500;i++){
+showTechnique(
 
-        const angle=Math.random()*Math.PI*2;
+"INFINITY VOID",
 
-        /*
-        Dense ring distribution
-        */
+"LIMITLESS • DOMAIN EXPANSION",
 
-        const radius =
-        190 + (Math.random()-.5)*35;
+"#b7efff"
 
-        const x =
-        cx + Math.cos(angle)*radius;
-
-        const y =
-        cy + Math.sin(angle)*radius;
-
-        const p=new Particle(
-
-            cx + (Math.random()-.5)*40,
-
-            cy + (Math.random()-.5)*40,
-
-            Math.random()>.5
-            ? "230,245,255"
-            : "110,220,255",
-
-            Math.random()*1.5+.4
-        );
-
-        p.tx=x;
-        p.ty=y;
-
-        p.angle=angle;
-        p.orbit=radius;
-
-        particles.push(p);
-    }
+);
 
 
-    /*
-    SPACE PARTICLES
-    */
+const cx=W/2;
+const cy=H/2;
 
-    for(let i=0;i<3500;i++){
 
-        const p=new Particle(
+/* PORTAL RING */
 
-            cx,
+for(let i=0;i<4500;i++){
 
-            cy,
+const angle=
+Math.random()*Math.PI*2;
 
-            Math.random()>.8
-            ? "80,190,255"
-            : "220,240,255",
+const radius=
+190+
+(Math.random()-.5)*35;
 
-            Math.random()*1.3+.25
-        );
+const p=
+new Particle(
 
-        p.tx=Math.random()*W;
-        p.ty=Math.random()*H;
+cx+
+(Math.random()-.5)*40,
 
-        particles.push(p);
-    }
+cy+
+(Math.random()-.5)*40,
+
+Math.random()>.3
+?
+"230,250,255"
+:
+"70,200,255",
+
+Math.random()*1.5+.25
+
+);
+
+p.angle=angle;
+
+p.radius=radius;
+
+p.type="infinityRing";
+
+particles.push(p);
 
 }
+
+
+/* UNIVERSE PARTICLES */
+
+for(let i=0;i<4000;i++){
+
+const p=
+new Particle(
+
+cx,
+cy,
+
+Math.random()>.8
+?
+"50,190,255"
+:
+"210,240,255",
+
+Math.random()*1.2+.2
+
+);
+
+p.tx=
+Math.random()*W;
+
+p.ty=
+Math.random()*H;
+
+p.type="space";
+
+particles.push(p);
+
+}
+
+}
+
 
 
 /* =====================================================
+   SUKUNA
    RED TECHNIQUE
 ===================================================== */
 
-function redTechnique(){
+function activateRed(){
 
-    resetParticles();
+const now=Date.now();
 
-    mode="red";
+if(mode==="red")
+return;
 
-    animationStart=performance.now();
+if(now-lastModeTime<3000)
+return;
 
-    document.getElementById("status").innerText =
-    "🔴 CURSED TECHNIQUE: RED";
+lastModeTime=now;
 
+clearParticles();
 
-    const cx=W/2;
-    const cy=H/2;
+mode="red";
 
+status.innerText=
+"🔴 CURSED TECHNIQUE ACTIVATED";
 
-    /*
-    CENTRAL ENERGY CORE
-    */
+showTechnique(
 
-    for(let i=0;i<3000;i++){
+"CURSED TECHNIQUE",
 
-        const angle=Math.random()*Math.PI*2;
+"DOMAIN EXPANSION",
 
-        /*
-        Dense energy sphere
-        */
+"#ff3030"
 
-        const radius =
-        Math.pow(Math.random(),2)*120;
-
-        const x=
-        cx + Math.cos(angle)*radius;
-
-        const y=
-        cy + Math.sin(angle)*radius;
-
-        const p=new Particle(
-
-            cx,
-
-            cy,
-
-            Math.random()>.5
-            ? "255,30,30"
-            : "255,180,180",
-
-            Math.random()*1.8+.3
-        );
-
-        p.tx=x;
-        p.ty=y;
-
-        particles.push(p);
-    }
+);
 
 
-    /*
-    PARTICLE RINGS
-    */
-
-    for(let ring=0;ring<5;ring++){
-
-        const baseRadius=150 + ring*65;
-
-        for(let i=0;i<850;i++){
-
-            const angle=
-            Math.random()*Math.PI*2;
-
-            const radius=
-            baseRadius +
-            (Math.random()-.5)*10;
-
-            const p=new Particle(
-
-                cx,
-
-                cy,
-
-                ring%2===0
-                ? "255,25,25"
-                : "180,0,0",
-
-                Math.random()*1.4+.3
-            );
-
-            p.tx=
-            cx+Math.cos(angle)*radius;
-
-            p.ty=
-            cy+Math.sin(angle)*radius;
-
-            p.ring=true;
-            p.angle=angle;
-            p.radius=radius;
-            p.ringIndex=ring;
-
-            particles.push(p);
-        }
-    }
+const cx=W/2;
+const cy=H/2;
 
 
-    /*
-    RED ENERGY CLOUD
-    */
+/* CENTRAL RED ORB */
 
-    for(let i=0;i<2500;i++){
+for(let i=0;i<3500;i++){
 
-        const angle=Math.random()*Math.PI*2;
+const angle=
+Math.random()*Math.PI*2;
 
-        const radius=
-        250+Math.random()*400;
+const radius=
+Math.pow(
+Math.random(),
+2
+)*125;
 
-        const p=new Particle(
+const p=
+new Particle(
 
-            cx,
+cx,
+cy,
 
-            cy,
+Math.random()>.3
+?
+"255,30,30"
+:
+"255,210,210",
 
-            "255,30,60",
+Math.random()*1.6+.25
 
-            Math.random()*1.2+.2
-        );
+);
 
-        p.tx=
-        cx+Math.cos(angle)*radius;
+p.tx=
+cx+
+Math.cos(angle)*radius;
 
-        p.ty=
-        cy+Math.sin(angle)*radius;
+p.ty=
+cy+
+Math.sin(angle)*radius;
 
-        particles.push(p);
-    }
+p.type="redCore";
+
+particles.push(p);
 
 }
+
+
+/* PARTICLE RINGS */
+
+for(let ring=0;
+ring<6;
+ring++){
+
+const base=
+130+ring*58;
+
+for(let i=0;
+i<700;
+i++){
+
+const angle=
+Math.random()*Math.PI*2;
+
+const p=
+new Particle(
+
+cx,
+cy,
+
+ring%2===0
+?
+"255,25,25"
+:
+"180,0,0",
+
+Math.random()*1.3+.2
+
+);
+
+p.angle=angle;
+
+p.radius=
+base+
+(Math.random()-.5)*15;
+
+p.ringIndex=ring;
+
+p.type="redRing";
+
+particles.push(p);
+
+}
+
+}
+
+
+/* RED EXPLOSION CLOUD */
+
+for(let i=0;
+i<2500;
+i++){
+
+const angle=
+Math.random()*Math.PI*2;
+
+const distance=
+250+
+Math.random()*500;
+
+const p=
+new Particle(
+
+cx,
+cy,
+
+"255,30,60",
+
+Math.random()*1.2+.2
+
+);
+
+p.tx=
+cx+
+Math.cos(angle)*distance;
+
+p.ty=
+cy+
+Math.sin(angle)*distance;
+
+p.type="explosion";
+
+particles.push(p);
+
+}
+
+}
+
+
+
+/* =====================================================
+   SUKUNA DOMAIN PARTICLE STRUCTURE
+===================================================== */
+
+function createDomain(){
+
+const cx=W/2;
+const baseY=H*.72;
+
+
+/* PARTICLE GROUND */
+
+for(let i=0;i<3500;i++){
+
+const p=
+new Particle(
+
+cx,
+baseY,
+
+"220,20,30",
+
+Math.random()*1.2+.2
+
+);
+
+const x=
+Math.random()*W;
+
+const curve=
+Math.pow(
+(x-cx)/(W*.5),
+2
+)*180;
+
+p.tx=x;
+
+p.ty=
+baseY+
+curve+
+Math.random()*60;
+
+particles.push(p);
+
+}
+
+
+/* TORII / SHRINE STRUCTURE */
+
+for(let i=0;i<1600;i++){
+
+const side=
+Math.random()>.5?1:-1;
+
+const p=
+new Particle(
+
+cx,
+baseY,
+
+"255,230,230",
+
+Math.random()*1.2+.2
+
+);
+
+p.tx=
+cx+
+side*
+(120+
+Math.random()*20);
+
+p.ty=
+baseY-
+Math.random()*280;
+
+particles.push(p);
+
+}
+
+
+/* TOP ROOF */
+
+for(let i=0;i<1800;i++){
+
+const p=
+new Particle(
+
+cx,
+baseY,
+
+"255,20,20",
+
+Math.random()*1.3+.2
+
+);
+
+const progress=
+Math.random();
+
+p.tx=
+cx+
+(progress-.5)*520;
+
+p.ty=
+baseY-
+300-
+Math.sin(progress*Math.PI)*80+
+Math.random()*25;
+
+particles.push(p);
+
+}
+
+}
+
 
 
 /* =====================================================
    RESET
 ===================================================== */
 
-function resetParticles(){
-
-    particles=[];
-
-    mode="idle";
-
-    document.getElementById("status").innerText =
-    "SYSTEM READY";
-}
-
-
 function resetScene(){
 
-    resetParticles();
+if(mode==="idle")
+return;
+
+mode="idle";
+
+clearParticles();
+
+status.innerText=
+"SYSTEM READY";
 
 }
+
 
 
 /* =====================================================
-   INFINITY ANIMATION
+   INFINITY UPDATE
 ===================================================== */
 
 function updateInfinity(time){
 
-    const cx=W/2;
-    const cy=H/2;
+const cx=W/2;
+const cy=H/2;
 
-    const elapsed=(time-animationStart)/1000;
-
-
-    particles.forEach((p,index)=>{
-
-        /*
-        Pulsating portal
-        */
-
-        if(index<3500){
-
-            const pulse=
-            Math.sin(
-                elapsed*2+
-                index*.01
-            )*8;
-
-            const angle=
-            p.angle+elapsed*.12;
-
-            p.tx=
-            cx+
-            Math.cos(angle)*
-            (p.orbit+pulse);
-
-            p.ty=
-            cy+
-            Math.sin(angle)*
-            (p.orbit+pulse);
-        }
+const t=time*.001;
 
 
-        p.update();
-        p.draw();
-
-    });
+particles.forEach((p,i)=>{
 
 
-    /*
-    Central dark void
-    */
+if(
+p.type==="infinityRing"
+){
 
-    const gradient=
-    ctx.createRadialGradient(
-        cx,cy,10,
-        cx,cy,175
-    );
+const pulse=
+Math.sin(
+t*2+
+i*.02
+)*12;
 
-    gradient.addColorStop(
-        0,
-        "rgba(0,0,0,.9)"
-    );
+const angle=
+p.angle+
+t*.2;
 
-    gradient.addColorStop(
-        .7,
-        "rgba(0,0,10,.45)"
-    );
+p.tx=
+cx+
+Math.cos(angle)*
+(p.radius+pulse);
 
-    gradient.addColorStop(
-        1,
-        "rgba(0,0,0,0)"
-    );
-
-    ctx.fillStyle=gradient;
-
-    ctx.beginPath();
-
-    ctx.arc(
-        cx,
-        cy,
-        190,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
+p.ty=
+cy+
+Math.sin(angle)*
+(p.radius+pulse);
 
 }
 
 
-/* =====================================================
-   RED ANIMATION
-===================================================== */
+if(
+p.type==="space"
+){
 
-function updateRed(time){
-
-    const cx=W/2;
-    const cy=H/2;
-
-    const elapsed=
-    (time-animationStart)/1000;
-
-
-    particles.forEach((p,index)=>{
-
-        if(p.ring){
-
-            const speed=
-            .2+p.ringIndex*.06;
-
-            p.angle+=speed*.015;
-
-            const pulse=
-            Math.sin(
-                elapsed*3+
-                index*.02
-            )*12;
-
-            p.tx=
-            cx+
-            Math.cos(p.angle)*
-            (p.radius+pulse);
-
-            p.ty=
-            cy+
-            Math.sin(p.angle)*
-            (p.radius+pulse);
-        }
-
-        p.update();
-        p.draw();
-
-    });
-
-
-    /*
-    GLOWING RED CORE
-    */
-
-    const pulse=
-    1+
-    Math.sin(elapsed*5)*.12;
-
-    const gradient=
-    ctx.createRadialGradient(
-
-        cx,
-        cy,
-        5,
-
-        cx,
-        cy,
-        150*pulse
-
-    );
-
-    gradient.addColorStop(
-        0,
-        "rgba(255,255,255,1)"
-    );
-
-    gradient.addColorStop(
-        .12,
-        "rgba(255,220,220,1)"
-    );
-
-    gradient.addColorStop(
-        .35,
-        "rgba(255,30,30,.9)"
-    );
-
-    gradient.addColorStop(
-        1,
-        "rgba(255,0,0,0)"
-    );
-
-    ctx.fillStyle=gradient;
-
-    ctx.beginPath();
-
-    ctx.arc(
-        cx,
-        cy,
-        150*pulse,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
+p.alpha=
+.2+
+Math.sin(
+t*3+i
+)*.5;
 
 }
 
 
-/* =====================================================
-   IDLE PARTICLES
-===================================================== */
+p.update();
 
-function drawIdle(){
-
-    const cx=W/2;
-    const cy=H/2;
-
-    /*
-    Subtle cinematic floating particles
-    */
-
-    for(let i=0;i<150;i++){
-
-        const x=
-        (Math.sin(Date.now()*.0002+i)*.5+.5)*W;
-
-        const y=
-        (Math.cos(Date.now()*.00015+i)*.5+.5)*H;
-
-        ctx.fillStyle=
-        "rgba(100,200,255,.25)";
-
-        ctx.fillRect(x,y,1,1);
-    }
-
-}
-
-
-/* =====================================================
-   MAIN LOOP
-===================================================== */
-
-function animate(time){
-
-    requestAnimationFrame(animate);
-
-
-    /*
-    TRAIL BACKGROUND
-    */
-
-    ctx.fillStyle=
-    "rgba(0,0,0,.18)";
-
-    ctx.fillRect(
-        0,
-        0,
-        W,
-        H
-    );
-
-
-    /*
-    BACKGROUND
-    */
-
-    if(mode==="infinity"){
-
-        drawStars();
-
-        updateInfinity(time);
-
-    }
-
-    else if(mode==="red"){
-
-        updateRed(time);
-
-    }
-
-    else{
-
-        drawIdle();
-
-    }
-
-}
-
-animate();
-
-
-/* =====================================================
-   KEYBOARD CONTROLS
-===================================================== */
-
-document.addEventListener(
-"keydown",
-(e)=>{
-
-    if(e.key==="i" || e.key==="I"){
-
-        infinityVoid();
-
-    }
-
-    if(e.key==="r" || e.key==="R"){
-
-        redTechnique();
-
-    }
-
-    if(e.code==="Space"){
-
-        resetScene();
-
-    }
+p.draw();
 
 });
 
 
+/* CENTRAL VOID */
+
+const gradient=
+ctx.createRadialGradient(
+
+cx,cy,20,
+cx,cy,190
+
+);
+
+gradient.addColorStop(
+0,
+"rgba(0,0,0,.95)"
+);
+
+gradient.addColorStop(
+.6,
+"rgba(0,5,20,.5)"
+);
+
+gradient.addColorStop(
+1,
+"rgba(0,0,0,0)"
+);
+
+ctx.fillStyle=gradient;
+
+ctx.beginPath();
+
+ctx.arc(
+cx,
+cy,
+190,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+
+
 /* =====================================================
-   AUTO DEMO
+   RED UPDATE
 ===================================================== */
+
+function updateRed(time){
+
+const cx=W/2;
+const cy=H/2;
+
+const t=time*.001;
+
+
+particles.forEach((p,i)=>{
+
+
+if(
+p.type==="redRing"
+){
+
+p.angle+=
+.003+
+p.ringIndex*.0005;
+
+const pulse=
+Math.sin(
+t*3+i*.02
+)*10;
+
+p.tx=
+cx+
+Math.cos(p.angle)*
+(p.radius+pulse);
+
+p.ty=
+cy+
+Math.sin(p.angle)*
+(p.radius+pulse);
+
+}
+
+
+if(
+p.type==="redCore"
+){
+
+const dx=
+p.tx-cx;
+
+const dy=
+p.ty-cy;
+
+const dist=
+Math.sqrt(dx*dx+dy*dy);
+
+const pulse=
+Math.sin(t*5)*8;
+
+p.tx=
+cx+
+dx/dist*
+(dist+pulse);
+
+p.ty=
+cy+
+dy/dist*
+(dist+pulse);
+
+}
+
+
+p.update();
+
+p.draw();
+
+});
+
+
+/* RED GLOW */
+
+const pulse=
+1+
+Math.sin(t*5)*.1;
+
+const glow=
+ctx.createRadialGradient(
+
+cx,cy,5,
+
+cx,cy,170*pulse
+
+);
+
+glow.addColorStop(
+0,
+"rgba(255,255,255,1)"
+);
+
+glow.addColorStop(
+.12,
+"rgba(255,220,220,1)"
+);
+
+glow.addColorStop(
+.35,
+"rgba(255,30,30,.9)"
+);
+
+glow.addColorStop(
+1,
+"rgba(255,0,0,0)"
+);
+
+ctx.fillStyle=glow;
+
+ctx.beginPath();
+
+ctx.arc(
+cx,
+cy,
+170*pulse,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+
+
+/* =====================================================
+   PARTICLE ANIMATION
+===================================================== */
+
+function animate(time){
+
+requestAnimationFrame(animate);
+
+
+ctx.fillStyle=
+"rgba(0,0,0,.22)";
+
+ctx.fillRect(
+0,
+0,
+W,
+H
+);
+
+
+if(mode==="infinity"){
+
+updateInfinity(time);
+
+}
+
+else if(mode==="red"){
+
+updateRed(time);
+
+}
+
+else{
+
+drawIdle(time);
+
+}
+
+}
+
+
+
+/* =====================================================
+   IDLE BACKGROUND
+===================================================== */
+
+function drawIdle(time){
+
+const t=time*.001;
+
+for(let i=0;i<120;i++){
+
+const x=
+(
+Math.sin(
+t*.2+i*23
+)*.5+.5
+)*W;
+
+const y=
+(
+Math.cos(
+t*.15+i*17
+)*.5+.5
+)*H;
+
+ctx.fillStyle=
+"rgba(40,170,220,.25)";
+
+ctx.fillRect(
+x,
+y,
+1,
+1
+);
+
+}
+
+}
+
+
+
+/* =====================================================
+   MEDIAPIPE HAND DETECTION
+===================================================== */
+
+const vision =
+await FilesetResolver.forVisionTasks(
+
+"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+
+);
+
+
+const handLandmarker =
+await HandLandmarker.createFromOptions(
+
+vision,
+
+{
+
+baseOptions:{
+
+modelAssetPath:
+
+"https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+
+delegate:"GPU"
+
+},
+
+runningMode:"VIDEO",
+
+numHands:2
+
+}
+
+);
+
+
+status.innerText=
+"HAND TRACKING READY";
+
+
+/* =====================================================
+   DRAW HAND
+===================================================== */
+
+function drawHand(
+landmarks
+){
+
+handCtx.clearRect(
+
+0,
+0,
+
+handCanvas.width,
+handCanvas.height
+
+);
+
+
+const connections=[
+
+[0,1],[1,2],[2,3],[3,4],
+
+[0,5],[5,6],[6,7],[7,8],
+
+[5,9],[9,10],[10,11],[11,12],
+
+[9,13],[13,14],[14,15],[15,16],
+
+[13,17],[17,18],[18,19],[19,20],
+
+[0,17]
+
+];
+
+
+/* LINES */
+
+handCtx.strokeStyle=
+"rgba(0,220,255,.9)";
+
+handCtx.lineWidth=3;
+
+connections.forEach(c=>{
+
+const a=landmarks[c[0]];
+
+const b=landmarks[c[1]];
+
+handCtx.beginPath();
+
+handCtx.moveTo(
+
+a.x*handCanvas.width,
+
+a.y*handCanvas.height
+
+);
+
+handCtx.lineTo(
+
+b.x*handCanvas.width,
+
+b.y*handCanvas.height
+
+);
+
+handCtx.stroke();
+
+});
+
+
+/* POINTS */
+
+landmarks.forEach(p=>{
+
+handCtx.beginPath();
+
+handCtx.fillStyle="#fff";
+
+handCtx.shadowBlur=10;
+
+handCtx.shadowColor="#00d9ff";
+
+handCtx.arc(
+
+p.x*handCanvas.width,
+
+p.y*handCanvas.height,
+
+5,
+
+0,
+
+Math.PI*2
+
+);
+
+handCtx.fill();
+
+});
+
+handCtx.shadowBlur=0;
+
+}
+
+
+
+/* =====================================================
+   FINGER EXTENDED DETECTION
+===================================================== */
+
+function fingerExtended(
+landmarks,
+tip,
+pip,
+mcp
+){
+
+const tipY=
+landmarks[tip].y;
+
+const pipY=
+landmarks[pip].y;
+
+const mcpY=
+landmarks[mcp].y;
+
+return(
+
+tipY<pipY &&
+pipY<mcpY
+
+);
+
+}
+
+
+
+/* =====================================================
+   GESTURE DETECTION
+===================================================== */
+
+function detectGesture(
+landmarks
+){
+
+const index=
+fingerExtended(
+landmarks,
+8,
+6,
+5
+);
+
+const middle=
+fingerExtended(
+landmarks,
+12,
+10,
+9
+);
+
+const ring=
+fingerExtended(
+landmarks,
+16,
+14,
+13
+);
+
+const pinky=
+fingerExtended(
+landmarks,
+20,
+18,
+17
+);
+
+
+/*
+GOJO:
+
+Index + Middle
+
+Other fingers closed
+
+*/
+
+
+if(
+index &&
+middle &&
+!ring &&
+!pinky
+){
+
+return"gojo";
+
+}
+
+
+/*
+SUKUNA:
+
+Open Palm
+
+*/
+
+if(
+index &&
+middle &&
+ring &&
+pinky
+){
+
+return"sukuna";
+
+}
+
+
+/*
+FIST
+
+*/
+
+if(
+!index &&
+!middle &&
+!ring &&
+!pinky
+){
+
+return"reset";
+
+}
+
+
+return"none";
+
+}
+
+
+
+/* =====================================================
+   DETECTION LOOP
+===================================================== */
+
+let lastVideoTime=-1;
+
+
+async function predict(){
+
+if(video.readyState>=2){
+
+if(
+video.currentTime!==lastVideoTime
+){
+
+lastVideoTime=
+video.currentTime;
+
+
+const result=
+handLandmarker.detectForVideo(
+
+video,
+
+performance.now()
+
+);
+
+
+handCtx.clearRect(
+
+0,
+0,
+
+handCanvas.width,
+handCanvas.height
+
+);
+
+
+if(
+result.landmarks &&
+result.landmarks.length>0
+){
+
+result.landmarks.forEach(
+
+landmarks=>{
+
+drawHand(landmarks);
+
+const gesture=
+detectGesture(landmarks);
+
+
+if(
+gesture==="gojo"
+){
+
+status.innerText=
+"GOJO POSE DETECTED";
+
+activateInfinity();
+
+}
+
+
+else if(
+gesture==="sukuna"
+){
+
+status.innerText=
+"SUKUNA POSE DETECTED";
+
+activateRed();
+
+/*
+DOMAIN STRUCTURE
+*/
+
+if(
+mode==="red"
+){
 
 setTimeout(()=>{
 
-    infinityVoid();
+if(mode==="red"){
 
-},1500);
+createDomain();
+
+}
+
+},1200);
+
+}
+
+}
+
+
+else if(
+gesture==="reset"
+){
+
+resetScene();
+
+}
+
+}
+
+);
+
+}
+
+}
+
+}
+
+requestAnimationFrame(predict);
+
+}
+
+
+predict();
+
+animate();
+
 
 </script>
 
