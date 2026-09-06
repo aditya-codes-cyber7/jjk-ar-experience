@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>JJK AR Experience</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #050505;
+      color: white;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    #app {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    video,
+    canvas {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
+    video {
+      opacity: 0.9;
+    }
+
+    #ui {
+      position: absolute;
+      z-index: 10;
+      top: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      width: 100%;
+      pointer-events: none;
+    }
+
+    h1 {
+      font-size: 28px;
+      letter-spacing: 4px;
+      text-shadow: 0 0 15px #7b2cff;
+    }
+
+    #status {
+      margin-top: 10px;
+      color: #aaa;
+      font-size: 14px;
+      letter-spacing: 2px;
+    }
+
+    #startBtn {
+      position: absolute;
+      z-index: 20;
+      padding: 16px 30px;
+      border: 1px solid #7b2cff;
+      background: rgba(20, 0, 40, 0.9);
+      color: white;
+      font-size: 16px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 0 25px #7b2cff;
+      transition: 0.3s;
+    }
+
+    #startBtn:hover {
+      background: #7b2cff;
+      box-shadow: 0 0 50px #7b2cff;
+      transform: scale(1.05);
+    }
+
+    .corner {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-color: #7b2cff;
+      z-index: 5;
+      opacity: 0.7;
+    }
+
+    .top-left {
+      top: 20px;
+      left: 20px;
+      border-top: 2px solid;
+      border-left: 2px solid;
+    }
+
+    .top-right {
+      top: 20px;
+      right: 20px;
+      border-top: 2px solid;
+      border-right: 2px solid;
+    }
+
+    .bottom-left {
+      bottom: 20px;
+      left: 20px;
+      border-bottom: 2px solid;
+      border-left: 2px solid;
+    }
+
+    .bottom-right {
+      bottom: 20px;
+      right: 20px;
+      border-bottom: 2px solid;
+      border-right: 2px solid;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="app">
+
+    <div id="ui">
+      <h1>JJK AR EXPERIENCE</h1>
+      <div id="status">SYSTEM READY</div>
+    </div>
+
+    <div class="corner top-left"></div>
+    <div class="corner top-right"></div>
+    <div class="corner bottom-left"></div>
+    <div class="corner bottom-right"></div>
+
+    <video id="webcam" autoplay playsinline></video>
+
+    <canvas id="output"></canvas>
+
+    <button id="startBtn">ACTIVATE CURSED ENERGY</button>
+
+  </div>
+
+
+  <!-- MediaPipe Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+
+  <script>
+
+    const videoElement = document.getElementById("webcam");
+    const canvasElement = document.getElementById("output");
+    const canvasCtx = canvasElement.getContext("2d");
+
+    const startBtn = document.getElementById("startBtn");
+    const status = document.getElementById("status");
+
+
+    // Resize Canvas
+    function resizeCanvas() {
+      canvasElement.width = window.innerWidth;
+      canvasElement.height = window.innerHeight;
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+
+    // MediaPipe Hands
+    const hands = new Hands({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+      }
+    });
+
+
+    hands.setOptions({
+      maxNumHands: 2,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.7,
+      minTrackingConfidence: 0.7
+    });
+
+
+    hands.onResults(onResults);
+
+
+    function onResults(results) {
+
+      canvasCtx.save();
+
+      canvasCtx.clearRect(
+        0,
+        0,
+        canvasElement.width,
+        canvasElement.height
+      );
+
+
+      if (results.multiHandLandmarks) {
+
+        results.multiHandLandmarks.forEach((landmarks) => {
+
+          drawConnectors(
+            canvasCtx,
+            landmarks,
+            HAND_CONNECTIONS,
+            {
+              color: "#9d4edd",
+              lineWidth: 4
+            }
+          );
+
+
+          drawLandmarks(
+            canvasCtx,
+            landmarks,
+            {
+              color: "#ffffff",
+              lineWidth: 2,
+              radius: 5
+            }
+          );
+
+        });
+
+        status.innerText = "CURSED ENERGY DETECTED ✦";
+
+      } else {
+
+        status.innerText = "SEARCHING FOR HANDS...";
+
+      }
+
+      canvasCtx.restore();
+
+    }
+
+
+    startBtn.addEventListener("click", async () => {
+
+      try {
+
+        status.innerText = "ACTIVATING CAMERA...";
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
+
+
+        videoElement.srcObject = stream;
+
+        await videoElement.play();
+
+
+        startBtn.style.display = "none";
+
+
+        const camera = new Camera(videoElement, {
+
+          onFrame: async () => {
+
+            await hands.send({
+              image: videoElement
+            });
+
+          },
+
+          width: 1280,
+          height: 720
+
+        });
+
+
+        camera.start();
+
+        status.innerText = "HAND TRACKING ACTIVE";
+
+      }
+
+      catch (error) {
+
+        console.error(error);
+
+        status.innerText = "CAMERA ACCESS DENIED";
+
+      }
+
+    });
+
+  </script>
+
+</body>
+</html>
