@@ -7,16 +7,12 @@
 <title>JJK AR Experience</title>
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
+*{margin:0;padding:0;box-sizing:border-box}
 
 body{
   background:#000;
   overflow:hidden;
-  font-family:Arial, sans-serif;
+  font-family:Arial,sans-serif;
   color:#fff;
 }
 
@@ -28,7 +24,7 @@ body{
   background:#000;
 }
 
-video, canvas{
+video,canvas{
   position:absolute;
   inset:0;
   width:100%;
@@ -38,14 +34,19 @@ video, canvas{
 
 #webcam{
   transform:scaleX(-1);
-  filter:brightness(.72) contrast(1.15) saturate(.9);
+  filter:brightness(.65) contrast(1.15) saturate(.85);
 }
 
 #handCanvas{
   z-index:5;
   transform:scaleX(-1);
   pointer-events:none;
-  transition:opacity .4s;
+  transition:.4s;
+}
+
+#fxCanvas{
+  z-index:10;
+  pointer-events:none;
 }
 
 #atmosphere{
@@ -54,40 +55,36 @@ video, canvas{
   z-index:7;
   pointer-events:none;
   opacity:0;
-  transition:opacity .8s ease;
+  transition:opacity .7s;
 }
 
 #atmosphere.red{
   opacity:1;
   background:
-    radial-gradient(circle at 50% 45%,
-      rgba(255,30,40,.28),
-      rgba(130,0,20,.45) 45%,
-      rgba(0,0,0,.72) 100%);
-  animation:redPulse 1.5s infinite alternate;
+    radial-gradient(
+      ellipse at 50% 50%,
+      rgba(255,0,30,.20) 0%,
+      rgba(180,0,20,.16) 30%,
+      rgba(70,0,10,.20) 60%,
+      rgba(0,0,0,.45) 100%
+    );
+  animation:cursePulse 1.2s infinite alternate;
 }
 
 #atmosphere.void{
   opacity:1;
   background:
-    radial-gradient(circle at 50% 50%,
-      rgba(125,40,255,.35),
-      rgba(35,0,80,.65) 45%,
-      rgba(0,0,0,.92) 100%);
+    radial-gradient(
+      circle at center,
+      rgba(100,20,255,.35),
+      rgba(20,0,60,.7) 50%,
+      rgba(0,0,0,.9)
+    );
 }
 
-@keyframes redPulse{
-  from{
-    filter:brightness(.8);
-  }
-  to{
-    filter:brightness(1.35);
-  }
-}
-
-#fxCanvas{
-  z-index:10;
-  pointer-events:none;
+@keyframes cursePulse{
+  from{filter:brightness(.8)}
+  to{filter:brightness(1.5)}
 }
 
 #ui{
@@ -100,16 +97,15 @@ video, canvas{
 }
 
 h1{
-  font-size:26px;
-  letter-spacing:6px;
-  text-shadow:0 0 20px #a855f7;
+  letter-spacing:7px;
+  font-size:25px;
+  text-shadow:0 0 20px #9b5cff;
 }
 
 #status{
   margin-top:10px;
   font-size:12px;
   letter-spacing:2px;
-  color:#ddd;
 }
 
 #startBtn{
@@ -119,14 +115,13 @@ h1{
   top:50%;
   transform:translate(-50%,-50%);
   padding:18px 28px;
-  border:1px solid #a855f7;
+  border:1px solid #ff3050;
   border-radius:8px;
-  background:rgba(10,0,25,.95);
-  color:#fff;
+  background:#080008;
+  color:white;
   cursor:pointer;
-  font-size:14px;
   letter-spacing:2px;
-  box-shadow:0 0 35px rgba(168,85,247,.8);
+  box-shadow:0 0 30px rgba(255,0,50,.5);
 }
 
 #techniqueText{
@@ -136,35 +131,23 @@ h1{
   top:50%;
   transform:translate(-50%,-50%) scale(.6);
   opacity:0;
-  text-align:center;
   pointer-events:none;
+  text-align:center;
 }
 
 #techniqueText.active{
-  animation:textReveal 1.5s forwards;
+  animation:reveal 1.5s forwards;
 }
 
-#techniqueJapanese{
-  font-size:clamp(50px,10vw,120px);
-  font-weight:bold;
-  text-shadow:0 0 25px #a855f7;
-}
-
-#techniqueName{
-  margin-top:12px;
-  letter-spacing:9px;
-  font-size:18px;
-}
-
-@keyframes textReveal{
+@keyframes reveal{
   0%{
     opacity:0;
-    transform:translate(-50%,-50%) scale(.4);
+    transform:translate(-50%,-50%) scale(.5);
     filter:blur(20px);
   }
   60%{
     opacity:1;
-    transform:translate(-50%,-50%) scale(1.12);
+    transform:translate(-50%,-50%) scale(1.1);
     filter:blur(0);
   }
   100%{
@@ -173,24 +156,34 @@ h1{
   }
 }
 
+#techniqueJapanese{
+  font-size:clamp(55px,10vw,120px);
+  font-weight:bold;
+  text-shadow:0 0 30px #a855f7;
+}
+
+#techniqueName{
+  letter-spacing:8px;
+  margin-top:12px;
+}
+
 #flash{
   position:absolute;
   inset:0;
   z-index:50;
-  opacity:0;
   pointer-events:none;
+  opacity:0;
 }
 
 #flash.active{
-  animation:flashAnim .65s ease-out;
+  animation:flashAnim .7s ease-out;
 }
 
 @keyframes flashAnim{
   0%{opacity:0}
-  15%{opacity:.85}
+  15%{opacity:.8}
   100%{opacity:0}
 }
-
 </style>
 </head>
 
@@ -218,14 +211,10 @@ h1{
     <div id="status">SYSTEM READY</div>
   </div>
 
-  <button id="startBtn">
-    ACTIVATE CAMERA
-  </button>
+  <button id="startBtn">ACTIVATE CAMERA</button>
 
 </div>
 
-
-<!-- MEDIAPIPE -->
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
@@ -239,52 +228,29 @@ h1{
 ========================================= */
 
 const video = document.getElementById("webcam");
+const handCanvas = document.getElementById("handCanvas");
+const handCtx = handCanvas.getContext("2d");
 
-const handCanvas =
-  document.getElementById("handCanvas");
+const fxCanvas = document.getElementById("fxCanvas");
+const fx = fxCanvas.getContext("2d");
 
-const handCtx =
-  handCanvas.getContext("2d");
+const status = document.getElementById("status");
+const startBtn = document.getElementById("startBtn");
+const atmosphere = document.getElementById("atmosphere");
+const flash = document.getElementById("flash");
 
-const fxCanvas =
-  document.getElementById("fxCanvas");
+const techniqueText = document.getElementById("techniqueText");
+const techniqueJapanese = document.getElementById("techniqueJapanese");
+const techniqueName = document.getElementById("techniqueName");
 
-const fx =
-  fxCanvas.getContext("2d");
-
-const status =
-  document.getElementById("status");
-
-const startBtn =
-  document.getElementById("startBtn");
-
-const atmosphere =
-  document.getElementById("atmosphere");
-
-const flash =
-  document.getElementById("flash");
-
-const techniqueText =
-  document.getElementById("techniqueText");
-
-const techniqueJapanese =
-  document.getElementById("techniqueJapanese");
-
-const techniqueName =
-  document.getElementById("techniqueName");
-
-
-/* =========================================
-   STATE
-========================================= */
 
 let active = false;
 let currentEffect = null;
-let animationId = null;
+let animationId;
 
-let lastHandPosition = {
-  x:window.innerWidth / 2,
-  y:window.innerHeight / 2
+let handPos = {
+  x: innerWidth / 2,
+  y: innerHeight / 2
 };
 
 
@@ -293,205 +259,207 @@ let lastHandPosition = {
 ========================================= */
 
 function resize(){
+  handCanvas.width = innerWidth;
+  handCanvas.height = innerHeight;
 
-  handCanvas.width = window.innerWidth;
-  handCanvas.height = window.innerHeight;
-
-  fxCanvas.width = window.innerWidth;
-  fxCanvas.height = window.innerHeight;
-
+  fxCanvas.width = innerWidth;
+  fxCanvas.height = innerHeight;
 }
 
-window.addEventListener("resize",resize);
-
+addEventListener("resize",resize);
 resize();
 
 
 /* =========================================
-   GESTURE DETECTION
+   GESTURES
 ========================================= */
 
-
-/* RED = ONE INDEX FINGER */
-
-function isRedPose(hand){
-
-  const indexUp =
-    hand[8].y < hand[6].y &&
-    hand[6].y < hand[5].y;
-
-  const middleDown =
-    hand[12].y > hand[10].y;
-
-  const ringDown =
-    hand[16].y > hand[14].y;
-
-  const pinkyDown =
-    hand[20].y > hand[18].y;
+function isRedPose(h){
 
   return (
-    indexUp &&
-    middleDown &&
-    ringDown &&
-    pinkyDown
+    h[8].y < h[6].y &&
+    h[12].y > h[10].y &&
+    h[16].y > h[14].y &&
+    h[20].y > h[18].y
   );
 
 }
 
+function isInfinityPose(h){
 
-/* INFINITY = TWO FINGERS */
+  const indexUp = h[8].y < h[6].y;
+  const middleUp = h[12].y < h[10].y;
 
-function isInfinityPose(hand){
+  const ringDown = h[16].y > h[14].y;
+  const pinkyDown = h[20].y > h[18].y;
 
-  const indexUp =
-    hand[8].y < hand[6].y;
-
-  const middleUp =
-    hand[12].y < hand[10].y;
-
-  const ringDown =
-    hand[16].y > hand[14].y;
-
-  const pinkyDown =
-    hand[20].y > hand[18].y;
-
-
-  const distance =
-    Math.hypot(
-      hand[8].x - hand[12].x,
-      hand[8].y - hand[12].y
-    );
-
-
-  return (
-    indexUp &&
-    middleUp &&
-    ringDown &&
-    pinkyDown &&
-    distance < 0.18
+  const d = Math.hypot(
+    h[8].x-h[12].x,
+    h[8].y-h[12].y
   );
 
+  return indexUp && middleUp &&
+         ringDown && pinkyDown &&
+         d < .18;
 }
 
 
 /* =========================================
-   RED PARTICLES
+   CURSED ENERGY PARTICLE
 ========================================= */
 
-class RedParticle{
+class CursedParticle{
 
-  constructor(cx,cy){
+  constructor(x,y){
 
-    this.cx = cx;
-    this.cy = cy;
+    this.x = x;
+    this.y = y;
 
-    this.angle =
-      Math.random() * Math.PI * 2;
+    const angle =
+      Math.random()*Math.PI*2;
 
-    this.radius =
-      20 + Math.random() * 180;
+    const power =
+      Math.random()*12+3;
 
-    this.speed =
-      (Math.random() * .035 + .01) *
-      (Math.random() > .5 ? 1 : -1);
+    this.vx =
+      Math.cos(angle)*power;
+
+    this.vy =
+      Math.sin(angle)*power;
+
+    this.gravity =
+      (Math.random()-.5)*.05;
+
+    this.drag =
+      .965 + Math.random()*.02;
 
     this.size =
-      Math.random() * 3 + 1;
+      Math.random()*4+1;
 
-    this.history = [];
+    this.life =
+      Math.random()*80+60;
 
-    this.type =
-      Math.random() > .4 ? "white" : "red";
+    this.maxLife =
+      this.life;
+
+    this.history=[];
+
+    this.color =
+      Math.random()>.22
+      ? "red"
+      : "white";
+
+    this.wave =
+      Math.random()*Math.PI*2;
 
   }
 
 
   update(){
 
-    this.angle += this.speed;
-
-    this.radius +=
-      Math.sin(this.angle * 2) * .8;
-
-    this.x =
-      this.cx +
-      Math.cos(this.angle) *
-      this.radius;
-
-    this.y =
-      this.cy +
-      Math.sin(this.angle) *
-      this.radius * .6;
-
-
     this.history.push({
       x:this.x,
       y:this.y
     });
 
-    if(this.history.length > 8){
-
+    if(this.history.length>18){
       this.history.shift();
-
     }
+
+
+    /* CHAOTIC MOVEMENT */
+
+    this.wave += .15;
+
+    this.vx +=
+      Math.sin(this.wave)*.12;
+
+    this.vy +=
+      Math.cos(this.wave*1.4)*.12;
+
+    this.vy += this.gravity;
+
+    this.vx *= this.drag;
+    this.vy *= this.drag;
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    this.life--;
 
   }
 
 
   draw(){
 
-    /* TRAIL */
-
-    if(this.history.length > 2){
-
-      fx.beginPath();
-
-      fx.moveTo(
-        this.history[0].x,
-        this.history[0].y
+    const alpha =
+      Math.max(
+        this.life/this.maxLife,
+        0
       );
+
+
+    /* LONG ENERGY TRAIL */
+
+    if(this.history.length>2){
 
       for(let i=1;
           i<this.history.length;
           i++){
 
-        fx.lineTo(
-          this.history[i].x,
-          this.history[i].y
-        );
+        const p1 =
+          this.history[i-1];
+
+        const p2 =
+          this.history[i];
+
+        const a =
+          (i/this.history.length)*
+          alpha*.6;
+
+        fx.beginPath();
+
+        fx.moveTo(p1.x,p1.y);
+        fx.lineTo(p2.x,p2.y);
+
+        fx.strokeStyle =
+          this.color==="white"
+          ? `rgba(255,255,255,${a})`
+          : `rgba(255,15,40,${a})`;
+
+        fx.lineWidth =
+          this.size*(i/this.history.length);
+
+        fx.shadowBlur = 12;
+
+        fx.shadowColor =
+          this.color==="white"
+          ? "#fff"
+          : "#ff0022";
+
+        fx.stroke();
 
       }
-
-      fx.strokeStyle =
-        this.type === "white"
-        ? "rgba(255,255,255,.35)"
-        : "rgba(255,20,40,.4)";
-
-      fx.lineWidth = 1;
-
-      fx.stroke();
 
     }
 
 
-    /* PARTICLE */
+    /* ENERGY SPARK */
 
     fx.beginPath();
 
     fx.arc(
       this.x,
       this.y,
-      this.size,
+      this.size*alpha,
       0,
-      Math.PI * 2
+      Math.PI*2
     );
 
-
     const color =
-      this.type === "white"
-      ? "#ffffff"
+      this.color==="white"
+      ? "#fff"
       : "#ff1735";
-
 
     fx.fillStyle = color;
 
@@ -507,58 +475,66 @@ class RedParticle{
 
 
 /* =========================================
-   AMBIENT PARTICLES
+   ENERGY CLOUD PARTICLES
 ========================================= */
 
-class AmbientParticle{
+class EnergySmoke{
 
-  constructor(){
+  constructor(x,y){
 
     this.x =
-      Math.random() * fxCanvas.width;
+      x+(Math.random()-.5)*100;
 
     this.y =
-      Math.random() * fxCanvas.height;
-
-    this.vx =
-      (Math.random()-.5) * .8;
-
-    this.vy =
-      (Math.random()-.5) * .8;
+      y+(Math.random()-.5)*100;
 
     this.size =
-      Math.random()*2+.5;
+      Math.random()*120+40;
 
     this.alpha =
-      Math.random()*.5+.15;
+      Math.random()*.12+.03;
+
+    this.vx =
+      (Math.random()-.5)*1.5;
+
+    this.vy =
+      (Math.random()-.5)*1.5;
+
+    this.life =
+      Math.random()*100+80;
 
   }
-
 
   update(){
 
     this.x += this.vx;
     this.y += this.vy;
 
-    if(
-      this.x < 0 ||
-      this.x > fxCanvas.width ||
-      this.y < 0 ||
-      this.y > fxCanvas.height
-    ){
+    this.size += .8;
 
-      this.x =
-        Math.random()*fxCanvas.width;
-
-      this.y =
-        Math.random()*fxCanvas.height;
-
-    }
+    this.life--;
 
   }
 
-
   draw(){
+
+    const gradient =
+      fx.createRadialGradient(
+        this.x,this.y,0,
+        this.x,this.y,this.size
+      );
+
+    gradient.addColorStop(
+      0,
+      `rgba(255,0,30,${this.alpha})`
+    );
+
+    gradient.addColorStop(
+      1,
+      "rgba(255,0,30,0)"
+    );
+
+    fx.fillStyle = gradient;
 
     fx.beginPath();
 
@@ -570,9 +546,6 @@ class AmbientParticle{
       Math.PI*2
     );
 
-    fx.fillStyle =
-      `rgba(255,${Math.random()>0.5?255:40},${Math.random()>0.5?255:60},${this.alpha})`;
-
     fx.fill();
 
   }
@@ -580,33 +553,41 @@ class AmbientParticle{
 }
 
 
-let redParticles = [];
-let ambientParticles = [];
+/* =========================================
+   PARTICLE ARRAYS
+========================================= */
+
+let cursedParticles = [];
+let smokeParticles = [];
 
 
 /* =========================================
-   CREATE RED ENERGY
+   CREATE ENERGY BURST
 ========================================= */
 
-function createRedEnergy(cx,cy){
+function createCursedEnergy(x,y){
 
-  redParticles = [];
-  ambientParticles = [];
+  cursedParticles = [];
+  smokeParticles = [];
 
 
-  for(let i=0;i<170;i++){
+  /* DENSE EXPLOSION */
 
-    redParticles.push(
-      new RedParticle(cx,cy)
+  for(let i=0;i<240;i++){
+
+    cursedParticles.push(
+      new CursedParticle(x,y)
     );
 
   }
 
 
-  for(let i=0;i<180;i++){
+  /* RED ENERGY CLOUD */
 
-    ambientParticles.push(
-      new AmbientParticle()
+  for(let i=0;i<25;i++){
+
+    smokeParticles.push(
+      new EnergySmoke(x,y)
     );
 
   }
@@ -615,50 +596,57 @@ function createRedEnergy(cx,cy){
 
 
 /* =========================================
-   DRAW RED CORE
+   RED ENERGY CORE
 ========================================= */
 
-function drawRedCore(cx,cy,time){
+function drawEnergyCore(x,y,time){
 
   const pulse =
-    32 + Math.sin(time*.01)*8;
+    20+
+    Math.sin(time*.012)*7;
 
 
-  const gradient =
+  /* HUGE GLOW */
+
+  const glow =
     fx.createRadialGradient(
-      cx,cy,0,
-      cx,cy,pulse*4
+      x,y,0,
+      x,y,pulse*7
     );
 
-  gradient.addColorStop(
+  glow.addColorStop(
     0,
     "rgba(255,255,255,1)"
   );
 
-  gradient.addColorStop(
-    .15,
-    "rgba(255,40,50,1)"
+  glow.addColorStop(
+    .08,
+    "rgba(255,80,80,.95)"
   );
 
-  gradient.addColorStop(
-    .5,
-    "rgba(255,0,30,.45)"
+  glow.addColorStop(
+    .25,
+    "rgba(255,0,30,.65)"
   );
 
-  gradient.addColorStop(
+  glow.addColorStop(
+    .6,
+    "rgba(255,0,20,.18)"
+  );
+
+  glow.addColorStop(
     1,
     "rgba(255,0,0,0)"
   );
 
 
-  fx.fillStyle = gradient;
+  fx.fillStyle = glow;
 
   fx.beginPath();
 
   fx.arc(
-    cx,
-    cy,
-    pulse*4,
+    x,y,
+    pulse*7,
     0,
     Math.PI*2
   );
@@ -666,101 +654,95 @@ function drawRedCore(cx,cy,time){
   fx.fill();
 
 
-  /* CORE */
+  /* INNER CORE */
 
   fx.beginPath();
 
   fx.arc(
-    cx,
-    cy,
+    x,y,
     pulse,
     0,
     Math.PI*2
   );
 
-  fx.fillStyle = "#ff1635";
+  fx.fillStyle="#ff1430";
 
-  fx.shadowBlur = 50;
+  fx.shadowBlur=60;
 
-  fx.shadowColor = "#ff002b";
+  fx.shadowColor="#ff0022";
 
   fx.fill();
 
 
-  /* RINGS */
+  /* WHITE HOT CENTER */
 
-  for(let i=0;i<3;i++){
+  fx.beginPath();
 
-    fx.beginPath();
+  fx.arc(
+    x,y,
+    pulse*.38,
+    0,
+    Math.PI*2
+  );
 
-    fx.ellipse(
-      cx,
-      cy,
-      pulse*(2+i*.5),
-      pulse*(.6+i*.15),
-      time*.002*(i%2?1:-1),
-      0,
-      Math.PI*2
-    );
+  fx.fillStyle="#fff";
 
-    fx.strokeStyle =
-      "rgba(255,100,120,.55)";
-
-    fx.lineWidth = 1.5;
-
-    fx.stroke();
-
-  }
+  fx.fill();
 
 }
 
 
 /* =========================================
-   RED LIGHTNING
+   CHAOTIC CURSED LIGHTNING
 ========================================= */
 
-function drawRedLightning(cx,cy){
+function lightning(x,y){
 
-  for(let b=0;b<7;b++){
+  for(let b=0;b<4;b++){
 
-    let angle =
+    const angle =
       Math.random()*Math.PI*2;
 
-    let x = cx;
-    let y = cy;
+    const length =
+      Math.random()*250+100;
+
+    let px=x;
+    let py=y;
 
     fx.beginPath();
 
-    fx.moveTo(x,y);
+    fx.moveTo(px,py);
 
-    for(let i=0;i<7;i++){
+    for(let i=0;i<10;i++){
 
-      x +=
-        Math.cos(
-          angle +
-          (Math.random()-.5)*.8
-        ) *
-        (20+i*14);
+      const step =
+        length/10;
 
-      y +=
-        Math.sin(
-          angle +
-          (Math.random()-.5)*.8
-        ) *
-        (20+i*14);
+      px +=
+        Math.cos(angle)*
+        step+
+        (Math.random()-.5)*35;
 
-      fx.lineTo(x,y);
+      py +=
+        Math.sin(angle)*
+        step+
+        (Math.random()-.5)*35;
+
+      fx.lineTo(px,py);
 
     }
 
     fx.strokeStyle =
-      "rgba(255,220,220,.55)";
+      Math.random()>.5
+      ? "rgba(255,30,50,.55)"
+      : "rgba(255,255,255,.35)";
 
-    fx.lineWidth = 1.5;
+    fx.lineWidth =
+      Math.random()*2+1;
 
-    fx.shadowBlur = 15;
+    fx.shadowBlur=18;
 
-    fx.shadowColor = "#ff002b";
+    fx.shadowColor="#ff0022";
 
     fx.stroke();
 
@@ -775,63 +757,71 @@ function drawRedLightning(cx,cy){
 
 function animateRed(time){
 
-  if(currentEffect !== "RED") return;
+  if(currentEffect!=="RED") return;
 
+
+  /* TRAIL FADE */
 
   fx.fillStyle =
-    "rgba(0,0,0,.10)";
+    "rgba(0,0,0,.12)";
 
   fx.fillRect(
-    0,
-    0,
+    0,0,
     fxCanvas.width,
     fxCanvas.height
   );
 
 
-  const cx =
-    lastHandPosition.x;
-
-  const cy =
-    lastHandPosition.y;
+  const x = handPos.x;
+  const y = handPos.y;
 
 
-  /* AMBIENT */
+  /* SMOKE */
 
-  ambientParticles.forEach(p=>{
+  smokeParticles.forEach((p,i)=>{
 
     p.update();
     p.draw();
 
+    if(p.life<=0){
+
+      smokeParticles[i] =
+        new EnergySmoke(x,y);
+
+    }
+
   });
 
 
-  /* ORBIT */
+  /* CHAOTIC PARTICLES */
 
-  redParticles.forEach(p=>{
-
-    p.cx = cx;
-    p.cy = cy;
+  cursedParticles.forEach((p,i)=>{
 
     p.update();
     p.draw();
 
+
+    if(p.life<=0){
+
+      /* NEW PARTICLES KEEP
+         EXPLODING FROM CORE */
+
+      cursedParticles[i] =
+        new CursedParticle(x,y);
+
+    }
+
   });
 
 
-  drawRedCore(
-    cx,
-    cy,
-    time
-  );
+  drawEnergyCore(x,y,time);
 
 
-  if(Math.random() > .5){
+  /* RANDOM LIGHTNING */
 
-    drawRedLightning(
-      cx,
-      cy
-    );
+  if(Math.random()>.65){
+
+    lightning(x,y);
 
   }
 
@@ -848,31 +838,23 @@ function animateRed(time){
    INFINITY VOID
 ========================================= */
 
-let stars = [];
-
+let stars=[];
 
 function createVoid(){
 
-  stars = [];
+  stars=[];
 
-  for(let i=0;i<700;i++){
+  for(let i=0;i<500;i++){
 
     stars.push({
 
-      x:
-        Math.random()*fxCanvas.width,
+      x:Math.random()*fxCanvas.width,
+      y:Math.random()*fxCanvas.height,
 
-      y:
-        Math.random()*fxCanvas.height,
+      vx:(Math.random()-.5)*2,
+      vy:(Math.random()-.5)*2,
 
-      z:
-        Math.random()*3+.5,
-
-      size:
-        Math.random()*2+.3,
-
-      speed:
-        Math.random()*2+1
+      size:Math.random()*2+.4
 
     });
 
@@ -883,104 +865,56 @@ function createVoid(){
 
 function animateVoid(time){
 
-  if(currentEffect !== "INFINITY")
+  if(currentEffect!=="INFINITY")
     return;
 
 
-  fx.fillStyle =
-    "rgba(0,0,10,.22)";
+  fx.fillStyle=
+    "rgba(0,0,15,.18)";
 
   fx.fillRect(
-    0,
-    0,
+    0,0,
     fxCanvas.width,
     fxCanvas.height
   );
 
 
-  const cx =
-    fxCanvas.width/2;
-
-  const cy =
-    fxCanvas.height/2;
-
-
-  /* STARS MOVING INTO VOID */
-
   stars.forEach(s=>{
 
-    const dx = s.x-cx;
-    const dy = s.y-cy;
-
-    s.x += dx*.003*s.speed;
-    s.y += dy*.003*s.speed;
-
+    s.x+=s.vx;
+    s.y+=s.vy;
 
     if(
-      s.x < 0 ||
-      s.x > fxCanvas.width ||
-      s.y < 0 ||
-      s.y > fxCanvas.height
+      s.x<0||
+      s.x>fxCanvas.width||
+      s.y<0||
+      s.y>fxCanvas.height
     ){
 
-      s.x = cx+(Math.random()-.5)*30;
-      s.y = cy+(Math.random()-.5)*30;
+      s.x=Math.random()*fxCanvas.width;
+      s.y=Math.random()*fxCanvas.height;
 
     }
-
 
     fx.beginPath();
 
     fx.arc(
-      s.x,
-      s.y,
-      s.size*s.z,
-      0,
-      Math.PI*2
+      s.x,s.y,s.size,
+      0,Math.PI*2
     );
 
     fx.fillStyle =
-      Math.random()>.6
-      ? "rgba(255,255,255,.8)"
-      : "rgba(170,80,255,.8)";
+      "rgba(180,100,255,.8)";
 
-    fx.shadowBlur = 12;
-
-    fx.shadowColor =
-      "#8b5cf6";
+    fx.shadowBlur=12;
+    fx.shadowColor="#8b5cf6";
 
     fx.fill();
 
   });
 
 
-  /* INFINITE RINGS */
-
-  for(let i=0;i<7;i++){
-
-    fx.beginPath();
-
-    fx.ellipse(
-      cx,
-      cy,
-      100+i*100,
-      50+i*45,
-      time*.0005+i,
-      0,
-      Math.PI*2
-    );
-
-    fx.strokeStyle =
-      "rgba(170,80,255,.25)";
-
-    fx.lineWidth = 2;
-
-    fx.stroke();
-
-  }
-
-
-  animationId =
+  animationId=
     requestAnimationFrame(
       animateVoid
     );
@@ -994,44 +928,31 @@ function animateVoid(time){
 
 function activateRed(){
 
-  if(active) return;
+  if(active)return;
 
-  active = true;
+  active=true;
+  currentEffect="RED";
 
-  currentEffect = "RED";
+  handCanvas.style.opacity="0";
 
-  handCanvas.style.opacity = "0";
-
-  status.innerText =
+  status.innerText=
     "🔴 CURSED TECHNIQUE: RED";
 
+  atmosphere.className="red";
 
-  atmosphere.className =
-    "red";
-
-  flash.style.background =
-    "#ff1735";
+  flash.style.background="#ff0022";
 
   flash.classList.add("active");
 
-
-  createRedEnergy(
-    lastHandPosition.x,
-    lastHandPosition.y
+  createCursedEnergy(
+    handPos.x,
+    handPos.y
   );
 
-
-  animationId =
-    requestAnimationFrame(
-      animateRed
-    );
+  animateRed(performance.now());
 
 
-  setTimeout(()=>{
-
-    stopEffect();
-
-  },9000);
+  setTimeout(stopEffect,9000);
 
 }
 
@@ -1042,111 +963,97 @@ function activateRed(){
 
 function activateInfinity(){
 
-  if(active) return;
+  if(active)return;
 
-  active = true;
+  active=true;
+  currentEffect="INFINITY";
 
-  currentEffect = "INFINITY";
+  handCanvas.style.opacity="0";
 
-  handCanvas.style.opacity = "0";
+  atmosphere.className="void";
 
-  status.innerText =
-    "∞ INFINITY ACTIVATED";
-
-
-  atmosphere.className =
-    "void";
-
-
-  flash.style.background =
-    "#a855f7";
+  flash.style.background="#a855f7";
 
   flash.classList.add("active");
 
+  status.innerText=
+    "∞ INFINITY ACTIVATED";
+
 
   setTimeout(()=>{
-
-    status.innerText =
-      "DOMAIN EXPANSION";
 
     createVoid();
 
-    animationId =
-      requestAnimationFrame(
-        animateVoid
-      );
+    animateVoid(
+      performance.now()
+    );
 
-  },700);
+    status.innerText=
+      "DOMAIN EXPANSION";
+
+  },600);
 
 
   setTimeout(()=>{
 
-    techniqueJapanese.innerText =
+    techniqueJapanese.innerText=
       "無量空処";
 
-    techniqueName.innerText =
+    techniqueName.innerText=
       "UNLIMITED VOID";
 
-    techniqueText.classList.add("active");
+    techniqueText.classList.add(
+      "active"
+    );
 
-  },2000);
+  },1800);
 
 
-  setTimeout(()=>{
-
-    stopEffect();
-
-  },11000);
+  setTimeout(stopEffect,11000);
 
 }
 
 
 /* =========================================
-   STOP EFFECT
+   STOP
 ========================================= */
 
 function stopEffect(){
 
-  cancelAnimationFrame(
-    animationId
-  );
+  cancelAnimationFrame(animationId);
 
-  currentEffect = null;
+  currentEffect=null;
 
   fx.clearRect(
-    0,
-    0,
+    0,0,
     fxCanvas.width,
     fxCanvas.height
   );
 
-  atmosphere.className = "";
+  atmosphere.className="";
 
   techniqueText.classList.remove(
     "active"
   );
 
-  handCanvas.style.opacity = "1";
+  handCanvas.style.opacity="1";
 
-  status.innerText =
+  status.innerText=
     "☝️ RED | 🤞 INFINITY";
 
-  active = false;
+  active=false;
 
 }
 
 
 /* =========================================
-   MEDIAPIPE HAND TRACKING
+   MEDIAPIPE
 ========================================= */
 
 const hands = new Hands({
 
-  locateFile:(file)=>{
-
-    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-
-  }
+  locateFile:file=>
+    `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
 
 });
 
@@ -1154,11 +1061,9 @@ const hands = new Hands({
 hands.setOptions({
 
   maxNumHands:1,
-
   modelComplexity:1,
 
   minDetectionConfidence:.7,
-
   minTrackingConfidence:.7
 
 });
@@ -1167,8 +1072,7 @@ hands.setOptions({
 hands.onResults(results=>{
 
   handCtx.clearRect(
-    0,
-    0,
+    0,0,
     handCanvas.width,
     handCanvas.height
   );
@@ -1176,34 +1080,22 @@ hands.onResults(results=>{
 
   if(
     !results.multiHandLandmarks ||
-    results.multiHandLandmarks.length === 0
-  ){
-
-    return;
-
-  }
+    !results.multiHandLandmarks.length
+  ) return;
 
 
   const hand =
     results.multiHandLandmarks[0];
 
 
-  /* SAVE INDEX FINGER POSITION */
+  /* FINGER POSITION */
 
-  lastHandPosition = {
+  handPos.x =
+    (1-hand[8].x)*innerWidth;
 
-    x:
-      (1-hand[8].x) *
-      window.innerWidth,
+  handPos.y =
+    hand[8].y*innerHeight;
 
-    y:
-      hand[8].y *
-      window.innerHeight
-
-  };
-
-
-  /* DRAW HAND */
 
   if(!active){
 
@@ -1217,12 +1109,11 @@ hands.onResults(results=>{
       }
     );
 
-
     drawLandmarks(
       handCtx,
       hand,
       {
-        color:"#ffffff",
+        color:"#fff",
         radius:4
       }
     );
@@ -1230,9 +1121,7 @@ hands.onResults(results=>{
   }
 
 
-  /* PRIORITY:
-     INFINITY FIRST
-  */
+  /* GESTURES */
 
   if(
     !active &&
@@ -1243,21 +1132,12 @@ hands.onResults(results=>{
 
   }
 
-
   else if(
     !active &&
     isRedPose(hand)
   ){
 
     activateRed();
-
-  }
-
-
-  else if(!active){
-
-    status.innerText =
-      "☝️ RED | 🤞 INFINITY";
 
   }
 
@@ -1268,74 +1148,58 @@ hands.onResults(results=>{
    CAMERA
 ========================================= */
 
-startBtn.addEventListener(
-  "click",
-  async()=>{
+startBtn.onclick=async()=>{
 
-    try{
+  try{
 
-      status.innerText =
-        "ACTIVATING CAMERA...";
+    const stream =
+      await navigator.mediaDevices
+      .getUserMedia({
+        video:true,
+        audio:false
+      });
 
+    video.srcObject=stream;
 
-      const stream =
-        await navigator.mediaDevices.getUserMedia({
+    await video.play();
 
-          video:true,
-          audio:false
-
-        });
-
-
-      video.srcObject =
-        stream;
-
-      await video.play();
+    startBtn.style.display="none";
 
 
-      startBtn.style.display =
-        "none";
+    const camera =
+      new Camera(video,{
+
+        onFrame:async()=>{
+
+          await hands.send({
+            image:video
+          });
+
+        },
+
+        width:1280,
+        height:720
+
+      });
+
+    camera.start();
 
 
-      const camera =
-        new Camera(video,{
-
-          onFrame:async()=>{
-
-            await hands.send({
-
-              image:video
-
-            });
-
-          },
-
-          width:1280,
-          height:720
-
-        });
-
-
-      camera.start();
-
-
-      status.innerText =
-        "☝️ RED | 🤞 INFINITY";
-
-
-    }
-
-    catch(error){
-
-      console.error(error);
-
-      status.innerText =
-        "CAMERA ACCESS DENIED";
-
-    }
+    status.innerText=
+      "☝️ RED | 🤞 INFINITY";
 
   }
-);
+
+  catch(err){
+
+    status.innerText=
+      "CAMERA ACCESS DENIED";
+
+    console.error(err);
+
+  }
+
+};
 
 </script>
 
