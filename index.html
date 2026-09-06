@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>JJK AR Experience</title>
 
 <style>
@@ -21,11 +20,11 @@ body{
   width:100vw;
   height:100vh;
   overflow:hidden;
-  background:#000;
 }
 
 video,canvas{
   position:absolute;
+  inset:0;
   width:100%;
   height:100%;
   object-fit:cover;
@@ -33,12 +32,13 @@ video,canvas{
 
 video{
   transform:scaleX(-1);
-  filter:brightness(.65) contrast(1.15);
+  filter:brightness(.75) contrast(1.15);
 }
 
 #handCanvas{
-  transform:scaleX(-1);
   z-index:5;
+  transform:scaleX(-1);
+  transition:opacity .4s;
 }
 
 #fxCanvas{
@@ -46,23 +46,33 @@ video{
   pointer-events:none;
 }
 
-#darkness{
+/* RED ATMOSPHERE */
+#redAtmosphere{
   position:absolute;
   inset:0;
-  z-index:8;
+  z-index:7;
   pointer-events:none;
-  background:
-    radial-gradient(circle at center,
-    rgba(50,0,100,.15),
-    rgba(0,0,0,.85));
   opacity:0;
-  transition:opacity .8s;
+  transition:opacity 1s ease;
+  background:
+    radial-gradient(circle at 50% 45%,
+      rgba(255,30,50,.30),
+      rgba(100,0,15,.45) 45%,
+      rgba(15,0,5,.82) 100%);
+  mix-blend-mode:screen;
 }
 
-#darkness.active{opacity:1}
+#redAtmosphere.active{
+  opacity:1;
+  animation:atmospherePulse 2s infinite alternate;
+}
+
+@keyframes atmospherePulse{
+  from{filter:brightness(.8)}
+  to{filter:brightness(1.3)}
+}
 
 /* UI */
-
 #ui{
   position:absolute;
   z-index:30;
@@ -75,17 +85,15 @@ video{
 h1{
   font-size:26px;
   letter-spacing:6px;
-  text-shadow:0 0 20px #9b5cff;
+  text-shadow:0 0 20px #ff1744;
 }
 
 #status{
   margin-top:10px;
   font-size:12px;
   letter-spacing:3px;
-  color:#d8c4ff;
+  color:#ffb0ba;
 }
-
-/* Start */
 
 #startBtn{
   position:absolute;
@@ -94,102 +102,68 @@ h1{
   left:50%;
   transform:translate(-50%,-50%);
   padding:18px 30px;
-  border:1px solid #9b5cff;
-  background:rgba(15,0,35,.92);
+  border:1px solid #ff1744;
+  background:rgba(30,0,5,.92);
   color:white;
   border-radius:8px;
   cursor:pointer;
   font-size:14px;
   letter-spacing:3px;
-  box-shadow:0 0 30px #7c3aed;
+  box-shadow:0 0 30px #ff1744;
 }
-
-/* Text */
 
 #domainText{
   position:absolute;
   z-index:40;
-  top:50%;
   left:50%;
-  transform:translate(-50%,-50%) scale(.5);
-  text-align:center;
+  top:50%;
+  transform:translate(-50%,-50%) scale(.7);
   opacity:0;
+  text-align:center;
   pointer-events:none;
 }
 
 #domainText.active{
-  animation:reveal 2s forwards;
+  animation:textReveal 1.8s forwards;
+}
+
+@keyframes textReveal{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.4);filter:blur(20px)}
+  60%{opacity:1;transform:translate(-50%,-50%) scale(1.1);filter:blur(0)}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1)}
 }
 
 .japanese{
-  font-size:clamp(55px,10vw,130px);
-  text-shadow:
-    0 0 20px #b56cff,
-    0 0 60px #7c3aed,
-    0 0 120px #3b0764;
+  font-size:clamp(50px,10vw,120px);
+  color:#fff;
+  text-shadow:0 0 25px #ff1744,0 0 80px #a00020;
 }
 
 .domain{
-  margin-top:15px;
-  letter-spacing:10px;
-  font-size:18px;
-  color:#e9d5ff;
+  margin-top:12px;
+  letter-spacing:9px;
+  font-size:17px;
+  color:#ffc0c8;
 }
-
-@keyframes reveal{
-  0%{
-    opacity:0;
-    transform:translate(-50%,-50%) scale(.3);
-    filter:blur(25px);
-  }
-  50%{
-    opacity:1;
-    transform:translate(-50%,-50%) scale(1.15);
-    filter:blur(0);
-  }
-  100%{
-    opacity:1;
-    transform:translate(-50%,-50%) scale(1);
-  }
-}
-
-/* Flash */
 
 #flash{
   position:absolute;
   inset:0;
   z-index:45;
-  background:#d8b4fe;
+  background:#ff3050;
   opacity:0;
   pointer-events:none;
 }
 
 #flash.active{
-  animation:flash .7s ease-out;
+  animation:flash .6s ease-out;
 }
 
 @keyframes flash{
   0%{opacity:0}
-  15%{opacity:.9}
+  20%{opacity:.75}
   100%{opacity:0}
 }
-
-/* Corners */
-
-.corner{
-  position:absolute;
-  width:60px;
-  height:60px;
-  z-index:35;
-  opacity:.7;
-  border-color:#9b5cff;
-}
-
-.tl{top:20px;left:20px;border-top:2px solid;border-left:2px solid}
-.tr{top:20px;right:20px;border-top:2px solid;border-right:2px solid}
-.bl{bottom:20px;left:20px;border-bottom:2px solid;border-left:2px solid}
-.br{bottom:20px;right:20px;border-bottom:2px solid;border-right:2px solid}
-
 </style>
 </head>
 
@@ -197,32 +171,27 @@ h1{
 
 <div id="app">
 
-<video id="webcam" autoplay playsinline></video>
+  <video id="webcam" autoplay playsinline></video>
 
-<canvas id="handCanvas"></canvas>
+  <canvas id="handCanvas"></canvas>
 
-<div id="darkness"></div>
+  <div id="redAtmosphere"></div>
 
-<canvas id="fxCanvas"></canvas>
+  <canvas id="fxCanvas"></canvas>
 
-<div id="domainText">
-  <div class="japanese">無量空処</div>
-  <div class="domain">UNLIMITED VOID</div>
-</div>
+  <div id="domainText">
+    <div class="japanese">術式展開</div>
+    <div class="domain">CURSED ENERGY</div>
+  </div>
 
-<div id="flash"></div>
+  <div id="flash"></div>
 
-<div id="ui">
-  <h1>JJK AR EXPERIENCE</h1>
-  <div id="status">SYSTEM READY</div>
-</div>
+  <div id="ui">
+    <h1>JJK AR EXPERIENCE</h1>
+    <div id="status">SYSTEM READY</div>
+  </div>
 
-<div class="corner tl"></div>
-<div class="corner tr"></div>
-<div class="corner bl"></div>
-<div class="corner br"></div>
-
-<button id="startBtn">ACTIVATE CURSED ENERGY</button>
+  <button id="startBtn">ACTIVATE CURSED ENERGY</button>
 
 </div>
 
@@ -233,7 +202,9 @@ h1{
 
 <script>
 
-/* ELEMENTS */
+/* =========================
+   ELEMENTS
+========================= */
 
 const video = document.getElementById("webcam");
 
@@ -246,7 +217,7 @@ const fx = fxCanvas.getContext("2d");
 const status = document.getElementById("status");
 const startBtn = document.getElementById("startBtn");
 
-const darkness = document.getElementById("darkness");
+const atmosphere = document.getElementById("redAtmosphere");
 const flash = document.getElementById("flash");
 const domainText = document.getElementById("domainText");
 
@@ -254,8 +225,14 @@ let active = false;
 let fxRunning = false;
 let animationId = null;
 
+let particles = [];
+let ambientParticles = [];
+let timeStart = 0;
 
-/* CANVAS */
+
+/* =========================
+   RESIZE
+========================= */
 
 function resize(){
 
@@ -271,34 +248,159 @@ addEventListener("resize",resize);
 resize();
 
 
-/* ENERGY PARTICLES */
+/* =========================
+   ORBIT ENERGY PARTICLE
+========================= */
 
-class EnergyParticle{
+class OrbitParticle{
 
-  constructor(x,y,color,type="normal"){
+  constructor(cx,cy){
 
-    this.x=x;
-    this.y=y;
-
-    this.color=color;
-    this.type=type;
+    this.cx=cx;
+    this.cy=cy;
 
     this.angle=Math.random()*Math.PI*2;
-    this.speed=1+Math.random()*4;
 
-    this.life=1;
+    this.radius=80+Math.random()*280;
 
-    this.size=2+Math.random()*5;
+    this.speed=
+      (0.008+Math.random()*0.02) *
+      (Math.random()>.5?1:-1);
+
+    this.size=1+Math.random()*3;
+
+    this.life=.5+Math.random()*.5;
+
+    this.color=
+      Math.random()>.35
+      ? "255,255,255"
+      : "255,30,50";
+
+    this.history=[];
 
   }
 
   update(){
 
-    this.x+=Math.cos(this.angle)*this.speed;
-    this.y+=Math.sin(this.angle)*this.speed;
+    this.angle+=this.speed;
 
-    this.speed*=.98;
-    this.life-=.012;
+    this.radius+=Math.sin(this.angle*3)*.8;
+
+    this.x=this.cx+
+      Math.cos(this.angle)*this.radius;
+
+    this.y=this.cy+
+      Math.sin(this.angle)*this.radius*.55;
+
+    this.history.push({
+      x:this.x,
+      y:this.y
+    });
+
+    if(this.history.length>12){
+      this.history.shift();
+    }
+
+  }
+
+  draw(){
+
+    /* TRAIL */
+
+    if(this.history.length>2){
+
+      fx.beginPath();
+
+      fx.moveTo(
+        this.history[0].x,
+        this.history[0].y
+      );
+
+      for(let i=1;i<this.history.length;i++){
+
+        fx.lineTo(
+          this.history[i].x,
+          this.history[i].y
+        );
+
+      }
+
+      fx.strokeStyle=
+        `rgba(${this.color},.25)`;
+
+      fx.lineWidth=1;
+
+      fx.shadowBlur=10;
+
+      fx.shadowColor=
+        `rgb(${this.color})`;
+
+      fx.stroke();
+
+    }
+
+
+    /* PARTICLE */
+
+    fx.beginPath();
+
+    fx.arc(
+      this.x,
+      this.y,
+      this.size,
+      0,
+      Math.PI*2
+    );
+
+    fx.fillStyle=
+      `rgba(${this.color},${this.life})`;
+
+    fx.shadowBlur=18;
+
+    fx.shadowColor=
+      `rgb(${this.color})`;
+
+    fx.fill();
+
+  }
+
+}
+
+
+/* =========================
+   AMBIENT PARTICLES
+========================= */
+
+class AmbientParticle{
+
+  constructor(){
+
+    this.x=Math.random()*fxCanvas.width;
+    this.y=Math.random()*fxCanvas.height;
+
+    this.size=Math.random()*2+0.5;
+
+    this.speedX=(Math.random()-.5)*.7;
+    this.speedY=(Math.random()-.5)*.7;
+
+    this.alpha=.15+Math.random()*.5;
+
+    this.red=Math.random()>.4;
+
+  }
+
+  update(){
+
+    this.x+=this.speedX;
+    this.y+=this.speedY;
+
+    if(this.x<0||this.x>fxCanvas.width||
+       this.y<0||this.y>fxCanvas.height){
+
+      this.x=Math.random()*fxCanvas.width;
+      this.y=Math.random()*fxCanvas.height;
+
+    }
 
   }
 
@@ -306,81 +408,25 @@ class EnergyParticle{
 
     fx.beginPath();
 
-    fx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    fx.arc(
+      this.x,
+      this.y,
+      this.size,
+      0,
+      Math.PI*2
+    );
 
-    fx.fillStyle=this.color;
+    const color=this.red
+      ? "255,40,60"
+      : "255,255,255";
 
-    fx.globalAlpha=Math.max(0,this.life);
+    fx.fillStyle=
+      `rgba(${color},${this.alpha})`;
 
-    fx.shadowBlur=25;
-    fx.shadowColor=this.color;
+    fx.shadowBlur=8;
 
-    fx.fill();
-
-    fx.globalAlpha=1;
-
-  }
-
-}
-
-
-/* EFFECT OBJECTS */
-
-let blueParticles=[];
-let redParticles=[];
-let stars=[];
-
-
-/* CREATE STARS */
-
-function createStars(){
-
-  stars=[];
-
-  for(let i=0;i<500;i++){
-
-    stars.push({
-
-      x:Math.random()*fxCanvas.width,
-      y:Math.random()*fxCanvas.height,
-
-      z:Math.random()*3+1,
-
-      size:Math.random()*2
-
-    });
-
-  }
-
-}
-
-
-/* DRAW STARS */
-
-function drawVoid(){
-
-  for(const s of stars){
-
-    s.z+=.03;
-
-    if(s.z>4){
-
-      s.z=.5;
-      s.x=Math.random()*fxCanvas.width;
-      s.y=Math.random()*fxCanvas.height;
-
-    }
-
-    const size=s.size*s.z;
-
-    fx.beginPath();
-
-    fx.arc(s.x,s.y,size,0,Math.PI*2);
-
-    fx.fillStyle="rgba(210,170,255,.8)";
-
-    fx.shadowBlur=10;
-    fx.shadowColor="#8b5cf6";
+    fx.shadowColor=
+      `rgb(${color})`;
 
     fx.fill();
 
@@ -389,91 +435,207 @@ function drawVoid(){
 }
 
 
-/* ENERGY ORB */
+/* =========================
+   CREATE PARTICLES
+========================= */
 
-function drawOrb(x,y,r,color,time){
+function createEnergy(cx,cy){
 
-  const gradient=fx.createRadialGradient(
-    x,y,0,
-    x,y,r
+  particles=[];
+
+  for(let i=0;i<180;i++){
+
+    particles.push(
+      new OrbitParticle(cx,cy)
+    );
+
+  }
+
+
+  ambientParticles=[];
+
+  for(let i=0;i<250;i++){
+
+    ambientParticles.push(
+      new AmbientParticle()
+    );
+
+  }
+
+}
+
+
+/* =========================
+   DRAW ENERGY CORE
+========================= */
+
+function drawCore(cx,cy,time){
+
+  const pulse=
+    45+Math.sin(time*.008)*10;
+
+
+  /* OUTER GLOW */
+
+  const gradient=
+    fx.createRadialGradient(
+      cx,cy,0,
+      cx,cy,pulse*3
+    );
+
+  gradient.addColorStop(
+    0,
+    "rgba(255,255,255,1)"
   );
 
-  gradient.addColorStop(0,"#fff");
-  gradient.addColorStop(.15,color);
-  gradient.addColorStop(.5,color+"99");
-  gradient.addColorStop(1,"transparent");
+  gradient.addColorStop(
+    .12,
+    "rgba(255,50,60,.95)"
+  );
+
+  gradient.addColorStop(
+    .4,
+    "rgba(255,0,35,.5)"
+  );
+
+  gradient.addColorStop(
+    1,
+    "rgba(255,0,30,0)"
+  );
+
 
   fx.fillStyle=gradient;
 
   fx.beginPath();
-  fx.arc(x,y,r,0,Math.PI*2);
+
+  fx.arc(
+    cx,cy,
+    pulse*3,
+    0,
+    Math.PI*2
+  );
+
   fx.fill();
 
 
-  /* rotating rings */
+  /* CORE */
 
-  fx.strokeStyle=color;
-  fx.lineWidth=2;
-  fx.globalAlpha=.8;
+  fx.beginPath();
 
-  for(let i=0;i<3;i++){
+  fx.arc(
+    cx,cy,
+    pulse,
+    0,
+    Math.PI*2
+  );
+
+  fx.fillStyle="#ff1535";
+
+  fx.shadowBlur=50;
+
+  fx.shadowColor="#ff002b";
+
+  fx.fill();
+
+
+  /* ROTATING RINGS */
+
+  for(let i=0;i<4;i++){
 
     fx.beginPath();
 
     fx.ellipse(
-      x,
-      y,
-      r*(1.5+i*.25),
-      r*(.5+i*.1),
-      time*.002+i,
+      cx,
+      cy,
+      pulse*(1.8+i*.35),
+      pulse*(.55+i*.12),
+      time*.002*(i%2?1:-1)+i,
       0,
       Math.PI*2
     );
+
+    fx.strokeStyle=
+      `rgba(255,${80+i*30},${90+i*20},.55)`;
+
+    fx.lineWidth=1.5;
+
+    fx.shadowBlur=12;
+
+    fx.shadowColor="#ff1744";
 
     fx.stroke();
 
   }
 
-  fx.globalAlpha=1;
+}
+
+
+/* =========================
+   ENERGY LIGHTNING
+========================= */
+
+function drawLightning(cx,cy,time){
+
+  fx.lineWidth=1.5;
+
+  for(let b=0;b<10;b++){
+
+    const angle=
+      time*.001+b*(Math.PI*2/10);
+
+    let x=cx;
+    let y=cy;
+
+    fx.beginPath();
+
+    fx.moveTo(x,y);
+
+    for(let i=0;i<8;i++){
+
+      const distance=
+        35+i*30;
+
+      x+=
+        Math.cos(angle+
+        (Math.random()-.5)*.5)
+        *distance;
+
+      y+=
+        Math.sin(angle+
+        (Math.random()-.5)*.5)
+        *distance;
+
+      fx.lineTo(x,y);
+
+    }
+
+    fx.strokeStyle=
+      "rgba(255,190,190,.45)";
+
+    fx.shadowBlur=15;
+
+    fx.shadowColor="#ff1744";
+
+    fx.stroke();
+
+  }
 
 }
 
 
-/* SHOCKWAVE */
+/* =========================
+   MAIN EFFECT
+========================= */
 
-function shockwave(x,y,r,color){
-
-  fx.beginPath();
-
-  fx.arc(x,y,r,0,Math.PI*2);
-
-  fx.strokeStyle=color;
-
-  fx.lineWidth=4;
-
-  fx.globalAlpha=Math.max(0,1-r/900);
-
-  fx.shadowBlur=30;
-  fx.shadowColor=color;
-
-  fx.stroke();
-
-  fx.globalAlpha=1;
-
-}
-
-
-/* MAIN ANIMATION */
-
-let startTime=0;
-
-function animate(time){
+function animateEnergy(time){
 
   if(!fxRunning)return;
 
-  const elapsed=time-startTime;
 
-  fx.clearRect(
+  fx.fillStyle=
+    "rgba(5,0,2,.12)";
+
+  fx.fillRect(
     0,
     0,
     fxCanvas.width,
@@ -481,207 +643,60 @@ function animate(time){
   );
 
 
-  /* STAGE 1 */
-
-  if(elapsed<3000){
-
-    const blueX=fxCanvas.width*.30;
-    const redX=fxCanvas.width*.70;
-
-    const y=fxCanvas.height*.5;
-
-    drawOrb(
-      blueX,
-      y,
-      80+Math.sin(time*.01)*15,
-      "#2563ff",
-      time
-    );
-
-    drawOrb(
-      redX,
-      y,
-      80+Math.sin(time*.012)*15,
-      "#ff1744",
-      time
-    );
+  const cx=fxCanvas.width/2;
+  const cy=fxCanvas.height*.48;
 
 
-    for(let i=0;i<6;i++){
+  /* AMBIENT */
 
-      const a=time*.003+i;
+  ambientParticles.forEach(p=>{
 
-      fx.beginPath();
+    p.update();
+    p.draw();
 
-      fx.moveTo(
-        blueX,
-        y
-      );
+  });
 
-      fx.lineTo(
-        blueX+
-        Math.cos(a)*200,
-        y+
-        Math.sin(a)*200
-      );
 
-      fx.strokeStyle="#3b82ff";
-      fx.lineWidth=2;
-      fx.shadowBlur=20;
-      fx.shadowColor="#2563ff";
-      fx.stroke();
+  /* ORBIT PARTICLES */
 
-    }
+  particles.forEach(p=>{
 
-    for(let i=0;i<6;i++){
+    p.cx=cx;
+    p.cy=cy;
 
-      const a=-time*.003+i;
+    p.update();
+    p.draw();
 
-      fx.beginPath();
+  });
 
-      fx.moveTo(
-        redX,
-        y
-      );
 
-      fx.lineTo(
-        redX+
-        Math.cos(a)*200,
-        y+
-        Math.sin(a)*200
-      );
+  /* CORE */
 
-      fx.strokeStyle="#ff1744";
-      fx.lineWidth=2;
-      fx.shadowBlur=20;
-      fx.shadowColor="#ff1744";
-      fx.stroke();
+  drawCore(cx,cy,time);
 
-    }
+
+  /* LIGHTNING */
+
+  if(Math.random()>.45){
+
+    drawLightning(cx,cy,time);
 
   }
 
 
-  /* STAGE 2 COLLISION */
-
-  else if(elapsed<5000){
-
-    const progress=(elapsed-3000)/2000;
-
-    const blueX=
-      fxCanvas.width*.30+
-      fxCanvas.width*.20*progress;
-
-    const redX=
-      fxCanvas.width*.70-
-      fxCanvas.width*.20*progress;
-
-    const y=fxCanvas.height*.5;
-
-    drawOrb(
-      blueX,y,
-      90,
-      "#2563ff",
-      time
+  animationId=
+    requestAnimationFrame(
+      animateEnergy
     );
-
-    drawOrb(
-      redX,y,
-      90,
-      "#ff1744",
-      time
-    );
-
-
-    if(progress>.7){
-
-      const center=fxCanvas.width/2;
-
-      drawOrb(
-        center,
-        y,
-        100+progress*150,
-        "#a855f7",
-        time
-      );
-
-    }
-
-  }
-
-
-  /* STAGE 3 EXPLOSION */
-
-  else if(elapsed<6000){
-
-    const centerX=fxCanvas.width/2;
-    const centerY=fxCanvas.height/2;
-
-    const progress=(elapsed-5000)/1000;
-
-    shockwave(
-      centerX,
-      centerY,
-      progress*1500,
-      "#a855f7"
-    );
-
-    drawOrb(
-      centerX,
-      centerY,
-      250+progress*500,
-      "#a855f7",
-      time
-    );
-
-  }
-
-
-  /* STAGE 4 VOID */
-
-  else{
-
-    drawVoid();
-
-    const cx=fxCanvas.width/2;
-    const cy=fxCanvas.height/2;
-
-    /* cosmic rings */
-
-    for(let i=0;i<5;i++){
-
-      fx.beginPath();
-
-      fx.ellipse(
-        cx,
-        cy,
-        150+i*90,
-        70+i*45,
-        time*.0005+i,
-        0,
-        Math.PI*2
-      );
-
-      fx.strokeStyle=
-        "rgba(170,100,255,.25)";
-
-      fx.lineWidth=2;
-
-      fx.stroke();
-
-    }
-
-  }
-
-
-  animationId=requestAnimationFrame(animate);
 
 }
 
 
-/* START EFFECT */
+/* =========================
+   ACTIVATE
+========================= */
 
-function activateGojo(){
+function activate(){
 
   if(active)return;
 
@@ -690,35 +705,40 @@ function activateGojo(){
   handCanvas.style.opacity="0";
 
   status.innerText=
-    "CURSED ENERGY: BLUE + RED";
+    "CURSED ENERGY DETECTED";
 
-  darkness.classList.add("active");
-
-  createStars();
-
-  fxRunning=true;
-
-  startTime=performance.now();
-
-  animationId=
-    requestAnimationFrame(animate);
+  atmosphere.classList.add("active");
 
 
   setTimeout(()=>{
 
-    status.innerText=
-      "DOMAIN EXPANSION";
-
     flash.classList.add("active");
 
-  },5000);
+    const cx=fxCanvas.width/2;
+    const cy=fxCanvas.height*.48;
+
+    createEnergy(cx,cy);
+
+    fxRunning=true;
+
+    timeStart=performance.now();
+
+    animationId=
+      requestAnimationFrame(
+        animateEnergy
+      );
+
+    status.innerText=
+      "CURSED ENERGY ACTIVE";
+
+  },500);
 
 
   setTimeout(()=>{
 
     domainText.classList.add("active");
 
-  },6200);
+  },1800);
 
 
   /* RESET */
@@ -727,7 +747,9 @@ function activateGojo(){
 
     fxRunning=false;
 
-    cancelAnimationFrame(animationId);
+    cancelAnimationFrame(
+      animationId
+    );
 
     fx.clearRect(
       0,0,
@@ -735,7 +757,7 @@ function activateGojo(){
       fxCanvas.height
     );
 
-    darkness.classList.remove("active");
+    atmosphere.classList.remove("active");
 
     domainText.classList.remove("active");
 
@@ -746,12 +768,14 @@ function activateGojo(){
 
     active=false;
 
-  },14000);
+  },12000);
 
 }
 
 
-/* GOJO GESTURE */
+/* =========================
+   GOJO GESTURE
+========================= */
 
 function isGojoPose(hand){
 
@@ -767,25 +791,24 @@ function isGojoPose(hand){
   const pinkyDown=
     hand[20].y>hand[18].y;
 
-  return(
-    indexUp &&
-    middleUp &&
-    ringDown &&
-    pinkyDown
-  );
+  return indexUp &&
+         middleUp &&
+         ringDown &&
+         pinkyDown;
 
 }
 
 
-/* MEDIAPIPE */
+/* =========================
+   MEDIAPIPE
+========================= */
 
 const hands=new Hands({
 
-  locateFile:(file)=>
+  locateFile:file=>
     `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
 
 });
-
 
 hands.setOptions({
 
@@ -799,7 +822,6 @@ hands.setOptions({
 
 });
 
-
 hands.onResults(results=>{
 
   handCtx.clearRect(
@@ -808,11 +830,9 @@ hands.onResults(results=>{
     handCanvas.height
   );
 
-
   if(!results.multiHandLandmarks)return;
 
   let detected=false;
-
 
   results.multiHandLandmarks.forEach(hand=>{
 
@@ -823,8 +843,8 @@ hands.onResults(results=>{
         hand,
         HAND_CONNECTIONS,
         {
-          color:"#9d4edd",
-          lineWidth:4
+          color:"#ff3050",
+          lineWidth:3
         }
       );
 
@@ -833,12 +853,11 @@ hands.onResults(results=>{
         hand,
         {
           color:"#fff",
-          radius:5
+          radius:4
         }
       );
 
     }
-
 
     if(isGojoPose(hand)){
 
@@ -848,10 +867,9 @@ hands.onResults(results=>{
 
   });
 
-
   if(detected&&!active){
 
-    activateGojo();
+    activate();
 
   }
 
@@ -865,7 +883,9 @@ hands.onResults(results=>{
 });
 
 
-/* CAMERA */
+/* =========================
+   CAMERA
+========================= */
 
 startBtn.addEventListener(
   "click",
@@ -876,23 +896,17 @@ startBtn.addEventListener(
       status.innerText=
         "ACTIVATING CAMERA...";
 
-
       const stream=
-        await navigator.mediaDevices
-        .getUserMedia({
-
+        await navigator.mediaDevices.getUserMedia({
           video:true,
           audio:false
-
         });
-
 
       video.srcObject=stream;
 
       await video.play();
 
       startBtn.style.display="none";
-
 
       const camera=
         new Camera(video,{
@@ -910,7 +924,6 @@ startBtn.addEventListener(
 
         });
 
-
       camera.start();
 
       status.innerText=
@@ -918,9 +931,9 @@ startBtn.addEventListener(
 
     }
 
-    catch(err){
+    catch(error){
 
-      console.error(err);
+      console.error(error);
 
       status.innerText=
         "CAMERA ACCESS DENIED";
