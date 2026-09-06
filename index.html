@@ -7,276 +7,188 @@
 <title>JJK AR Experience</title>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  background:#000;
+  overflow:hidden;
+  font-family:Arial,sans-serif;
+  color:white;
 }
 
-body {
-  background: #000;
-  overflow: hidden;
-  font-family: Arial, sans-serif;
-  color: white;
+#app{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+  background:#000;
 }
 
-#app {
-  width: 100vw;
-  height: 100vh;
-  position: relative;
-  overflow: hidden;
-  background: #000;
+video,canvas{
+  position:absolute;
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
-video,
-#handCanvas,
-#voidCanvas {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+video{
+  transform:scaleX(-1);
+  filter:brightness(.65) contrast(1.15);
 }
 
-/* Mirror camera + hand tracking */
-video,
-#handCanvas {
-  transform: scaleX(-1);
+#handCanvas{
+  transform:scaleX(-1);
+  z-index:5;
 }
 
-video {
-  opacity: 0.9;
-  filter: brightness(0.8) contrast(1.1);
+#fxCanvas{
+  z-index:10;
+  pointer-events:none;
 }
 
-/* Particle canvas */
-#voidCanvas {
-  z-index: 8;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-
-#voidCanvas.active {
-  opacity: 1;
-}
-
-/* Cinematic dark overlay */
-#voidOverlay {
-  position: absolute;
-  inset: 0;
-  z-index: 7;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 1s ease;
+#darkness{
+  position:absolute;
+  inset:0;
+  z-index:8;
+  pointer-events:none;
   background:
     radial-gradient(circle at center,
-      rgba(70, 0, 180, 0.25),
-      rgba(20, 0, 60, 0.6),
-      rgba(0, 0, 0, 0.8));
+    rgba(50,0,100,.15),
+    rgba(0,0,0,.85));
+  opacity:0;
+  transition:opacity .8s;
 }
 
-#voidOverlay.active {
-  opacity: 1;
-}
+#darkness.active{opacity:1}
 
 /* UI */
-#ui {
-  position: absolute;
-  z-index: 30;
-  top: 25px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  width: 100%;
-  pointer-events: none;
+
+#ui{
+  position:absolute;
+  z-index:30;
+  top:25px;
+  width:100%;
+  text-align:center;
+  pointer-events:none;
 }
 
-h1 {
-  font-size: 28px;
-  letter-spacing: 5px;
-  text-shadow: 0 0 20px #8f4cff;
+h1{
+  font-size:26px;
+  letter-spacing:6px;
+  text-shadow:0 0 20px #9b5cff;
 }
 
-#status {
-  margin-top: 10px;
-  color: #d5c4ff;
-  font-size: 13px;
-  letter-spacing: 3px;
+#status{
+  margin-top:10px;
+  font-size:12px;
+  letter-spacing:3px;
+  color:#d8c4ff;
 }
 
-/* Start button */
-#startBtn {
-  position: absolute;
-  z-index: 50;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 18px 32px;
-  border: 1px solid #9b5cff;
-  background: rgba(15, 0, 35, 0.9);
-  color: white;
-  font-size: 15px;
-  letter-spacing: 3px;
-  cursor: pointer;
-  border-radius: 8px;
-  box-shadow: 0 0 25px #7b2cff;
+/* Start */
+
+#startBtn{
+  position:absolute;
+  z-index:50;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  padding:18px 30px;
+  border:1px solid #9b5cff;
+  background:rgba(15,0,35,.92);
+  color:white;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+  letter-spacing:3px;
+  box-shadow:0 0 30px #7c3aed;
 }
 
-#startBtn:hover {
-  background: #6d28d9;
-  box-shadow: 0 0 60px #8b5cf6;
+/* Text */
+
+#domainText{
+  position:absolute;
+  z-index:40;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(.5);
+  text-align:center;
+  opacity:0;
+  pointer-events:none;
 }
 
-/* Domain Text */
-#domainText {
-  position: absolute;
-  z-index: 20;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.5);
-  text-align: center;
-  opacity: 0;
-  pointer-events: none;
+#domainText.active{
+  animation:reveal 2s forwards;
 }
 
-#domainText.active {
-  animation: textReveal 2.5s forwards;
-}
-
-.japanese {
-  font-size: clamp(55px, 10vw, 130px);
-  color: white;
+.japanese{
+  font-size:clamp(55px,10vw,130px);
   text-shadow:
-    0 0 15px #a855f7,
-    0 0 40px #7c3aed,
-    0 0 90px #4c1d95;
+    0 0 20px #b56cff,
+    0 0 60px #7c3aed,
+    0 0 120px #3b0764;
 }
 
-.domain-name {
-  margin-top: 15px;
-  font-size: clamp(13px, 2vw, 24px);
-  letter-spacing: 10px;
-  color: #e9d5ff;
+.domain{
+  margin-top:15px;
+  letter-spacing:10px;
+  font-size:18px;
+  color:#e9d5ff;
 }
 
-@keyframes textReveal {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.3);
-    filter: blur(20px);
+@keyframes reveal{
+  0%{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(.3);
+    filter:blur(25px);
   }
-
-  50% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.15);
-    filter: blur(0);
+  50%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1.15);
+    filter:blur(0);
   }
-
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    filter: blur(0);
+  100%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
   }
 }
 
-/* Energy Rings */
-.ring {
-  position: absolute;
-  z-index: 10;
-  top: 50%;
-  left: 50%;
-  border-radius: 50%;
-  border: 2px solid rgba(190, 120, 255, 0.8);
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  pointer-events: none;
+/* Flash */
+
+#flash{
+  position:absolute;
+  inset:0;
+  z-index:45;
+  background:#d8b4fe;
+  opacity:0;
+  pointer-events:none;
 }
 
-.ring.active {
-  animation: ringExpand 2.5s ease-out infinite;
+#flash.active{
+  animation:flash .7s ease-out;
 }
 
-.ring:nth-child(2) {
-  animation-delay: 0.6s;
-}
-
-.ring:nth-child(3) {
-  animation-delay: 1.2s;
-}
-
-@keyframes ringExpand {
-  0% {
-    width: 30px;
-    height: 30px;
-    opacity: 1;
-    box-shadow: 0 0 30px #9d4edd;
-  }
-
-  100% {
-    width: 150vw;
-    height: 150vw;
-    opacity: 0;
-    box-shadow: 0 0 80px #7b2cff;
-  }
-}
-
-/* Screen flash */
-#flash {
-  position: absolute;
-  inset: 0;
-  z-index: 25;
-  background: white;
-  opacity: 0;
-  pointer-events: none;
-}
-
-#flash.active {
-  animation: flashEffect 0.7s ease-out;
-}
-
-@keyframes flashEffect {
-  0% { opacity: 0; }
-  15% { opacity: 0.9; }
-  100% { opacity: 0; }
+@keyframes flash{
+  0%{opacity:0}
+  15%{opacity:.9}
+  100%{opacity:0}
 }
 
 /* Corners */
-.corner {
-  position: absolute;
-  width: 70px;
-  height: 70px;
-  border-color: #8b5cf6;
-  z-index: 31;
-  opacity: 0.7;
+
+.corner{
+  position:absolute;
+  width:60px;
+  height:60px;
+  z-index:35;
+  opacity:.7;
+  border-color:#9b5cff;
 }
 
-.top-left {
-  top: 20px;
-  left: 20px;
-  border-top: 2px solid;
-  border-left: 2px solid;
-}
-
-.top-right {
-  top: 20px;
-  right: 20px;
-  border-top: 2px solid;
-  border-right: 2px solid;
-}
-
-.bottom-left {
-  bottom: 20px;
-  left: 20px;
-  border-bottom: 2px solid;
-  border-left: 2px solid;
-}
-
-.bottom-right {
-  bottom: 20px;
-  right: 20px;
-  border-bottom: 2px solid;
-  border-right: 2px solid;
-}
+.tl{top:20px;left:20px;border-top:2px solid;border-left:2px solid}
+.tr{top:20px;right:20px;border-top:2px solid;border-right:2px solid}
+.bl{bottom:20px;left:20px;border-bottom:2px solid;border-left:2px solid}
+.br{bottom:20px;right:20px;border-bottom:2px solid;border-right:2px solid}
 
 </style>
 </head>
@@ -285,36 +197,32 @@ h1 {
 
 <div id="app">
 
-  <video id="webcam" autoplay playsinline></video>
+<video id="webcam" autoplay playsinline></video>
 
-  <canvas id="handCanvas"></canvas>
+<canvas id="handCanvas"></canvas>
 
-  <div id="voidOverlay"></div>
+<div id="darkness"></div>
 
-  <canvas id="voidCanvas"></canvas>
+<canvas id="fxCanvas"></canvas>
 
-  <div class="ring"></div>
-  <div class="ring"></div>
-  <div class="ring"></div>
+<div id="domainText">
+  <div class="japanese">無量空処</div>
+  <div class="domain">UNLIMITED VOID</div>
+</div>
 
-  <div id="flash"></div>
+<div id="flash"></div>
 
-  <div id="domainText">
-    <div class="japanese">無量空処</div>
-    <div class="domain-name">UNLIMITED VOID</div>
-  </div>
+<div id="ui">
+  <h1>JJK AR EXPERIENCE</h1>
+  <div id="status">SYSTEM READY</div>
+</div>
 
-  <div id="ui">
-    <h1>JJK AR EXPERIENCE</h1>
-    <div id="status">SYSTEM READY</div>
-  </div>
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
 
-  <div class="corner top-left"></div>
-  <div class="corner top-right"></div>
-  <div class="corner bottom-left"></div>
-  <div class="corner bottom-right"></div>
-
-  <button id="startBtn">ACTIVATE CURSED ENERGY</button>
+<button id="startBtn">ACTIVATE CURSED ENERGY</button>
 
 </div>
 
@@ -323,286 +231,543 @@ h1 {
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
-
 <script>
 
-/* =========================
-   ELEMENTS
-========================= */
+/* ELEMENTS */
 
-const videoElement = document.getElementById("webcam");
+const video = document.getElementById("webcam");
 
 const handCanvas = document.getElementById("handCanvas");
 const handCtx = handCanvas.getContext("2d");
 
-const voidCanvas = document.getElementById("voidCanvas");
-const voidCtx = voidCanvas.getContext("2d");
+const fxCanvas = document.getElementById("fxCanvas");
+const fx = fxCanvas.getContext("2d");
 
 const status = document.getElementById("status");
 const startBtn = document.getElementById("startBtn");
 
-const voidOverlay = document.getElementById("voidOverlay");
-const domainText = document.getElementById("domainText");
+const darkness = document.getElementById("darkness");
 const flash = document.getElementById("flash");
+const domainText = document.getElementById("domainText");
 
-const rings = document.querySelectorAll(".ring");
-
-let gojoActive = false;
-let particles = [];
-let animationId;
+let active = false;
+let fxRunning = false;
+let animationId = null;
 
 
-/* =========================
-   CANVAS RESIZE
-========================= */
+/* CANVAS */
 
-function resizeCanvas() {
+function resize(){
 
-  handCanvas.width = window.innerWidth;
-  handCanvas.height = window.innerHeight;
+  handCanvas.width = innerWidth;
+  handCanvas.height = innerHeight;
 
-  voidCanvas.width = window.innerWidth;
-  voidCanvas.height = window.innerHeight;
+  fxCanvas.width = innerWidth;
+  fxCanvas.height = innerHeight;
 
 }
 
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
+addEventListener("resize",resize);
+resize();
 
 
-/* =========================
-   PARTICLES
-========================= */
+/* ENERGY PARTICLES */
 
-class Particle {
+class EnergyParticle{
 
-  constructor() {
+  constructor(x,y,color,type="normal"){
 
-    this.reset(true);
+    this.x=x;
+    this.y=y;
 
-  }
+    this.color=color;
+    this.type=type;
 
-  reset(initial = false) {
+    this.angle=Math.random()*Math.PI*2;
+    this.speed=1+Math.random()*4;
 
-    const angle = Math.random() * Math.PI * 2;
+    this.life=1;
 
-    const radius = initial
-      ? Math.random() * Math.max(window.innerWidth, window.innerHeight)
-      : Math.max(window.innerWidth, window.innerHeight);
-
-    this.x =
-      voidCanvas.width / 2 +
-      Math.cos(angle) * radius;
-
-    this.y =
-      voidCanvas.height / 2 +
-      Math.sin(angle) * radius;
-
-    this.angle = angle;
-
-    this.radius = radius;
-
-    this.speed = 0.002 + Math.random() * 0.008;
-
-    this.size = 1 + Math.random() * 3;
-
-    this.alpha = 0.3 + Math.random() * 0.7;
+    this.size=2+Math.random()*5;
 
   }
 
+  update(){
 
-  update() {
+    this.x+=Math.cos(this.angle)*this.speed;
+    this.y+=Math.sin(this.angle)*this.speed;
 
-    /* Spiral towards center */
+    this.speed*=.98;
+    this.life-=.012;
 
-    this.angle += this.speed;
+  }
 
-    this.radius *= 0.985;
+  draw(){
 
-    this.x =
-      voidCanvas.width / 2 +
-      Math.cos(this.angle) * this.radius;
+    fx.beginPath();
 
-    this.y =
-      voidCanvas.height / 2 +
-      Math.sin(this.angle) * this.radius;
+    fx.arc(this.x,this.y,this.size,0,Math.PI*2);
+
+    fx.fillStyle=this.color;
+
+    fx.globalAlpha=Math.max(0,this.life);
+
+    fx.shadowBlur=25;
+    fx.shadowColor=this.color;
+
+    fx.fill();
+
+    fx.globalAlpha=1;
+
+  }
+
+}
 
 
-    if (this.radius < 5) {
-      this.reset(false);
+/* EFFECT OBJECTS */
+
+let blueParticles=[];
+let redParticles=[];
+let stars=[];
+
+
+/* CREATE STARS */
+
+function createStars(){
+
+  stars=[];
+
+  for(let i=0;i<500;i++){
+
+    stars.push({
+
+      x:Math.random()*fxCanvas.width,
+      y:Math.random()*fxCanvas.height,
+
+      z:Math.random()*3+1,
+
+      size:Math.random()*2
+
+    });
+
+  }
+
+}
+
+
+/* DRAW STARS */
+
+function drawVoid(){
+
+  for(const s of stars){
+
+    s.z+=.03;
+
+    if(s.z>4){
+
+      s.z=.5;
+      s.x=Math.random()*fxCanvas.width;
+      s.y=Math.random()*fxCanvas.height;
+
+    }
+
+    const size=s.size*s.z;
+
+    fx.beginPath();
+
+    fx.arc(s.x,s.y,size,0,Math.PI*2);
+
+    fx.fillStyle="rgba(210,170,255,.8)";
+
+    fx.shadowBlur=10;
+    fx.shadowColor="#8b5cf6";
+
+    fx.fill();
+
+  }
+
+}
+
+
+/* ENERGY ORB */
+
+function drawOrb(x,y,r,color,time){
+
+  const gradient=fx.createRadialGradient(
+    x,y,0,
+    x,y,r
+  );
+
+  gradient.addColorStop(0,"#fff");
+  gradient.addColorStop(.15,color);
+  gradient.addColorStop(.5,color+"99");
+  gradient.addColorStop(1,"transparent");
+
+  fx.fillStyle=gradient;
+
+  fx.beginPath();
+  fx.arc(x,y,r,0,Math.PI*2);
+  fx.fill();
+
+
+  /* rotating rings */
+
+  fx.strokeStyle=color;
+  fx.lineWidth=2;
+  fx.globalAlpha=.8;
+
+  for(let i=0;i<3;i++){
+
+    fx.beginPath();
+
+    fx.ellipse(
+      x,
+      y,
+      r*(1.5+i*.25),
+      r*(.5+i*.1),
+      time*.002+i,
+      0,
+      Math.PI*2
+    );
+
+    fx.stroke();
+
+  }
+
+  fx.globalAlpha=1;
+
+}
+
+
+/* SHOCKWAVE */
+
+function shockwave(x,y,r,color){
+
+  fx.beginPath();
+
+  fx.arc(x,y,r,0,Math.PI*2);
+
+  fx.strokeStyle=color;
+
+  fx.lineWidth=4;
+
+  fx.globalAlpha=Math.max(0,1-r/900);
+
+  fx.shadowBlur=30;
+  fx.shadowColor=color;
+
+  fx.stroke();
+
+  fx.globalAlpha=1;
+
+}
+
+
+/* MAIN ANIMATION */
+
+let startTime=0;
+
+function animate(time){
+
+  if(!fxRunning)return;
+
+  const elapsed=time-startTime;
+
+  fx.clearRect(
+    0,
+    0,
+    fxCanvas.width,
+    fxCanvas.height
+  );
+
+
+  /* STAGE 1 */
+
+  if(elapsed<3000){
+
+    const blueX=fxCanvas.width*.30;
+    const redX=fxCanvas.width*.70;
+
+    const y=fxCanvas.height*.5;
+
+    drawOrb(
+      blueX,
+      y,
+      80+Math.sin(time*.01)*15,
+      "#2563ff",
+      time
+    );
+
+    drawOrb(
+      redX,
+      y,
+      80+Math.sin(time*.012)*15,
+      "#ff1744",
+      time
+    );
+
+
+    for(let i=0;i<6;i++){
+
+      const a=time*.003+i;
+
+      fx.beginPath();
+
+      fx.moveTo(
+        blueX,
+        y
+      );
+
+      fx.lineTo(
+        blueX+
+        Math.cos(a)*200,
+        y+
+        Math.sin(a)*200
+      );
+
+      fx.strokeStyle="#3b82ff";
+      fx.lineWidth=2;
+      fx.shadowBlur=20;
+      fx.shadowColor="#2563ff";
+      fx.stroke();
+
+    }
+
+    for(let i=0;i<6;i++){
+
+      const a=-time*.003+i;
+
+      fx.beginPath();
+
+      fx.moveTo(
+        redX,
+        y
+      );
+
+      fx.lineTo(
+        redX+
+        Math.cos(a)*200,
+        y+
+        Math.sin(a)*200
+      );
+
+      fx.strokeStyle="#ff1744";
+      fx.lineWidth=2;
+      fx.shadowBlur=20;
+      fx.shadowColor="#ff1744";
+      fx.stroke();
+
     }
 
   }
 
 
-  draw() {
+  /* STAGE 2 COLLISION */
 
-    voidCtx.beginPath();
+  else if(elapsed<5000){
 
-    voidCtx.arc(
-      this.x,
-      this.y,
-      this.size,
-      0,
-      Math.PI * 2
+    const progress=(elapsed-3000)/2000;
+
+    const blueX=
+      fxCanvas.width*.30+
+      fxCanvas.width*.20*progress;
+
+    const redX=
+      fxCanvas.width*.70-
+      fxCanvas.width*.20*progress;
+
+    const y=fxCanvas.height*.5;
+
+    drawOrb(
+      blueX,y,
+      90,
+      "#2563ff",
+      time
     );
 
-    voidCtx.fillStyle =
-      `rgba(190, 130, 255, ${this.alpha})`;
+    drawOrb(
+      redX,y,
+      90,
+      "#ff1744",
+      time
+    );
 
-    voidCtx.shadowBlur = 15;
-    voidCtx.shadowColor = "#8b5cf6";
 
-    voidCtx.fill();
+    if(progress>.7){
+
+      const center=fxCanvas.width/2;
+
+      drawOrb(
+        center,
+        y,
+        100+progress*150,
+        "#a855f7",
+        time
+      );
+
+    }
 
   }
 
-}
 
+  /* STAGE 3 EXPLOSION */
 
-/* Create particles */
+  else if(elapsed<6000){
 
-function createParticles() {
+    const centerX=fxCanvas.width/2;
+    const centerY=fxCanvas.height/2;
 
-  particles = [];
+    const progress=(elapsed-5000)/1000;
 
-  for (let i = 0; i < 450; i++) {
-    particles.push(new Particle());
+    shockwave(
+      centerX,
+      centerY,
+      progress*1500,
+      "#a855f7"
+    );
+
+    drawOrb(
+      centerX,
+      centerY,
+      250+progress*500,
+      "#a855f7",
+      time
+    );
+
   }
 
+
+  /* STAGE 4 VOID */
+
+  else{
+
+    drawVoid();
+
+    const cx=fxCanvas.width/2;
+    const cy=fxCanvas.height/2;
+
+    /* cosmic rings */
+
+    for(let i=0;i<5;i++){
+
+      fx.beginPath();
+
+      fx.ellipse(
+        cx,
+        cy,
+        150+i*90,
+        70+i*45,
+        time*.0005+i,
+        0,
+        Math.PI*2
+      );
+
+      fx.strokeStyle=
+        "rgba(170,100,255,.25)";
+
+      fx.lineWidth=2;
+
+      fx.stroke();
+
+    }
+
+  }
+
+
+  animationId=requestAnimationFrame(animate);
+
 }
 
 
-/* Animate void */
+/* START EFFECT */
 
-function animateVoid() {
+function activateGojo(){
 
-  voidCtx.fillStyle =
-    "rgba(3, 0, 12, 0.18)";
+  if(active)return;
 
-  voidCtx.fillRect(
-    0,
-    0,
-    voidCanvas.width,
-    voidCanvas.height
-  );
+  active=true;
 
+  handCanvas.style.opacity="0";
 
-  particles.forEach(particle => {
+  status.innerText=
+    "CURSED ENERGY: BLUE + RED";
 
-    particle.update();
-    particle.draw();
+  darkness.classList.add("active");
 
-  });
+  createStars();
 
+  fxRunning=true;
 
-  animationId =
-    requestAnimationFrame(animateVoid);
+  startTime=performance.now();
 
-}
+  animationId=
+    requestAnimationFrame(animate);
 
 
-/* =========================
-   GOJO ACTIVATION
-========================= */
+  setTimeout(()=>{
 
-function activateGojo() {
-
-  if (gojoActive) return;
-
-  gojoActive = true;
-
-  status.innerText = "GOJO POSE DETECTED";
-
-  setTimeout(() => {
-
-    status.innerText = "CURSED ENERGY RISING...";
+    status.innerText=
+      "DOMAIN EXPANSION";
 
     flash.classList.add("active");
 
-  }, 500);
+  },5000);
 
 
-  setTimeout(() => {
-
-    voidOverlay.classList.add("active");
-
-    voidCanvas.classList.add("active");
-
-    rings.forEach(ring =>
-      ring.classList.add("active")
-    );
-
-    createParticles();
-
-    animateVoid();
-
-  }, 1000);
-
-
-  setTimeout(() => {
-
-    status.innerText =
-      "DOMAIN EXPANSION";
+  setTimeout(()=>{
 
     domainText.classList.add("active");
 
-  }, 1800);
+  },6200);
 
 
-  /* Reset */
+  /* RESET */
 
-  setTimeout(() => {
+  setTimeout(()=>{
 
-    gojoActive = false;
-
-    voidOverlay.classList.remove("active");
-
-    voidCanvas.classList.remove("active");
-
-    domainText.classList.remove("active");
-
-    rings.forEach(ring =>
-      ring.classList.remove("active")
-    );
+    fxRunning=false;
 
     cancelAnimationFrame(animationId);
 
-    voidCtx.clearRect(
-      0,
-      0,
-      voidCanvas.width,
-      voidCanvas.height
+    fx.clearRect(
+      0,0,
+      fxCanvas.width,
+      fxCanvas.height
     );
 
-    status.innerText =
+    darkness.classList.remove("active");
+
+    domainText.classList.remove("active");
+
+    handCanvas.style.opacity="1";
+
+    status.innerText=
       "SHOW GOJO HAND SIGN";
 
-  }, 9000);
+    active=false;
+
+  },14000);
 
 }
 
 
-/* =========================
-   GOJO GESTURE
-========================= */
+/* GOJO GESTURE */
 
-function isGojoPose(hand) {
+function isGojoPose(hand){
 
-  const indexUp =
-    hand[8].y < hand[6].y;
+  const indexUp=
+    hand[8].y<hand[6].y;
 
-  const middleUp =
-    hand[12].y < hand[10].y;
+  const middleUp=
+    hand[12].y<hand[10].y;
 
-  const ringDown =
-    hand[16].y > hand[14].y;
+  const ringDown=
+    hand[16].y>hand[14].y;
 
-  const pinkyDown =
-    hand[20].y > hand[18].y;
+  const pinkyDown=
+    hand[20].y>hand[18].y;
 
-
-  return (
+  return(
     indexUp &&
     middleUp &&
     ringDown &&
@@ -612,166 +777,152 @@ function isGojoPose(hand) {
 }
 
 
-/* =========================
-   MEDIAPIPE HANDS
-========================= */
+/* MEDIAPIPE */
 
-const hands = new Hands({
+const hands=new Hands({
 
-  locateFile: (file) => {
-
-    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-
-  }
+  locateFile:(file)=>
+    `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
 
 });
 
 
 hands.setOptions({
 
-  maxNumHands: 2,
+  maxNumHands:2,
 
-  modelComplexity: 1,
+  modelComplexity:1,
 
-  minDetectionConfidence: 0.7,
+  minDetectionConfidence:.7,
 
-  minTrackingConfidence: 0.7
+  minTrackingConfidence:.7
 
 });
 
 
-hands.onResults(onResults);
-
-
-function onResults(results) {
+hands.onResults(results=>{
 
   handCtx.clearRect(
-    0,
-    0,
+    0,0,
     handCanvas.width,
     handCanvas.height
   );
 
 
-  if (results.multiHandLandmarks) {
+  if(!results.multiHandLandmarks)return;
 
-    let poseDetected = false;
+  let detected=false;
 
 
-    results.multiHandLandmarks.forEach(landmarks => {
+  results.multiHandLandmarks.forEach(hand=>{
+
+    if(!active){
 
       drawConnectors(
         handCtx,
-        landmarks,
+        hand,
         HAND_CONNECTIONS,
         {
-          color: "#9d4edd",
-          lineWidth: 4
+          color:"#9d4edd",
+          lineWidth:4
         }
       );
-
 
       drawLandmarks(
         handCtx,
-        landmarks,
+        hand,
         {
-          color: "#ffffff",
-          lineWidth: 2,
-          radius: 5
+          color:"#fff",
+          radius:5
         }
       );
 
-
-      if (isGojoPose(landmarks)) {
-
-        poseDetected = true;
-
-      }
-
-    });
+    }
 
 
-    if (poseDetected && !gojoActive) {
+    if(isGojoPose(hand)){
 
-      activateGojo();
+      detected=true;
 
     }
 
-    else if (!gojoActive) {
+  });
 
-      status.innerText =
-        "SHOW GOJO HAND SIGN";
 
-    }
+  if(detected&&!active){
+
+    activateGojo();
 
   }
 
-}
+  else if(!active){
+
+    status.innerText=
+      "SHOW GOJO HAND SIGN";
+
+  }
+
+});
 
 
-/* =========================
-   CAMERA
-========================= */
+/* CAMERA */
 
 startBtn.addEventListener(
   "click",
-  async () => {
+  async()=>{
 
-    try {
+    try{
 
-      status.innerText =
+      status.innerText=
         "ACTIVATING CAMERA...";
 
 
-      const stream =
-        await navigator.mediaDevices.getUserMedia({
+      const stream=
+        await navigator.mediaDevices
+        .getUserMedia({
 
-          video: true,
-          audio: false
+          video:true,
+          audio:false
 
         });
 
 
-      videoElement.srcObject = stream;
+      video.srcObject=stream;
 
-      await videoElement.play();
+      await video.play();
 
-      startBtn.style.display =
-        "none";
+      startBtn.style.display="none";
 
 
-      const camera =
-        new Camera(videoElement, {
+      const camera=
+        new Camera(video,{
 
-          onFrame: async () => {
+          onFrame:async()=>{
 
             await hands.send({
-              image: videoElement
+              image:video
             });
 
           },
 
-          width: 1280,
-
-          height: 720
+          width:1280,
+          height:720
 
         });
 
 
       camera.start();
 
-
-      status.innerText =
+      status.innerText=
         "SHOW GOJO HAND SIGN";
-
 
     }
 
-    catch (error) {
+    catch(err){
 
-      console.error(error);
+      console.error(err);
 
-      status.innerText =
+      status.innerText=
         "CAMERA ACCESS DENIED";
 
     }
