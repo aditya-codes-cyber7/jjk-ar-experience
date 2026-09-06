@@ -1,274 +1,747 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>JJK AR Experience</title>
+<title>JJK AR Experience</title>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    body {
-      background: #050505;
-      color: white;
-      font-family: Arial, sans-serif;
-      overflow: hidden;
-    }
+body {
+  background: #000;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  color: white;
+}
 
-    #app {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+#app {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: #000;
+}
 
-    video,
-    canvas {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transform: scaleX(-1);
-    }
+video,
+#handCanvas,
+#voidCanvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
-    video {
-      opacity: 0.9;
-    }
+/* Mirror camera + hand tracking */
+video,
+#handCanvas {
+  transform: scaleX(-1);
+}
 
-    #ui {
-      position: absolute;
-      z-index: 10;
-      top: 25px;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      width: 100%;
-      pointer-events: none;
-    }
+video {
+  opacity: 0.9;
+  filter: brightness(0.8) contrast(1.1);
+}
 
-    h1 {
-      font-size: 28px;
-      letter-spacing: 4px;
-      text-shadow: 0 0 15px #7b2cff;
-    }
+/* Particle canvas */
+#voidCanvas {
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
 
-    #status {
-      margin-top: 10px;
-      color: #aaa;
-      font-size: 14px;
-      letter-spacing: 2px;
-    }
+#voidCanvas.active {
+  opacity: 1;
+}
 
-    #startBtn {
-      position: absolute;
-      z-index: 20;
-      padding: 16px 30px;
-      border: 1px solid #7b2cff;
-      background: rgba(20, 0, 40, 0.9);
-      color: white;
-      font-size: 16px;
-      letter-spacing: 2px;
-      cursor: pointer;
-      border-radius: 8px;
-      box-shadow: 0 0 25px #7b2cff;
-      transition: 0.3s;
-    }
+/* Cinematic dark overlay */
+#voidOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1s ease;
+  background:
+    radial-gradient(circle at center,
+      rgba(70, 0, 180, 0.25),
+      rgba(20, 0, 60, 0.6),
+      rgba(0, 0, 0, 0.8));
+}
 
-    #startBtn:hover {
-      background: #7b2cff;
-      box-shadow: 0 0 50px #7b2cff;
-      transform: scale(1.05);
-    }
+#voidOverlay.active {
+  opacity: 1;
+}
 
-    .corner {
-      position: absolute;
-      width: 80px;
-      height: 80px;
-      border-color: #7b2cff;
-      z-index: 5;
-      opacity: 0.7;
-    }
+/* UI */
+#ui {
+  position: absolute;
+  z-index: 30;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  width: 100%;
+  pointer-events: none;
+}
 
-    .top-left {
-      top: 20px;
-      left: 20px;
-      border-top: 2px solid;
-      border-left: 2px solid;
-    }
+h1 {
+  font-size: 28px;
+  letter-spacing: 5px;
+  text-shadow: 0 0 20px #8f4cff;
+}
 
-    .top-right {
-      top: 20px;
-      right: 20px;
-      border-top: 2px solid;
-      border-right: 2px solid;
-    }
+#status {
+  margin-top: 10px;
+  color: #d5c4ff;
+  font-size: 13px;
+  letter-spacing: 3px;
+}
 
-    .bottom-left {
-      bottom: 20px;
-      left: 20px;
-      border-bottom: 2px solid;
-      border-left: 2px solid;
-    }
+/* Start button */
+#startBtn {
+  position: absolute;
+  z-index: 50;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 18px 32px;
+  border: 1px solid #9b5cff;
+  background: rgba(15, 0, 35, 0.9);
+  color: white;
+  font-size: 15px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  border-radius: 8px;
+  box-shadow: 0 0 25px #7b2cff;
+}
 
-    .bottom-right {
-      bottom: 20px;
-      right: 20px;
-      border-bottom: 2px solid;
-      border-right: 2px solid;
-    }
-  </style>
+#startBtn:hover {
+  background: #6d28d9;
+  box-shadow: 0 0 60px #8b5cf6;
+}
+
+/* Domain Text */
+#domainText {
+  position: absolute;
+  z-index: 20;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#domainText.active {
+  animation: textReveal 2.5s forwards;
+}
+
+.japanese {
+  font-size: clamp(55px, 10vw, 130px);
+  color: white;
+  text-shadow:
+    0 0 15px #a855f7,
+    0 0 40px #7c3aed,
+    0 0 90px #4c1d95;
+}
+
+.domain-name {
+  margin-top: 15px;
+  font-size: clamp(13px, 2vw, 24px);
+  letter-spacing: 10px;
+  color: #e9d5ff;
+}
+
+@keyframes textReveal {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+    filter: blur(20px);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Energy Rings */
+.ring {
+  position: absolute;
+  z-index: 10;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 2px solid rgba(190, 120, 255, 0.8);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ring.active {
+  animation: ringExpand 2.5s ease-out infinite;
+}
+
+.ring:nth-child(2) {
+  animation-delay: 0.6s;
+}
+
+.ring:nth-child(3) {
+  animation-delay: 1.2s;
+}
+
+@keyframes ringExpand {
+  0% {
+    width: 30px;
+    height: 30px;
+    opacity: 1;
+    box-shadow: 0 0 30px #9d4edd;
+  }
+
+  100% {
+    width: 150vw;
+    height: 150vw;
+    opacity: 0;
+    box-shadow: 0 0 80px #7b2cff;
+  }
+}
+
+/* Screen flash */
+#flash {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#flash.active {
+  animation: flashEffect 0.7s ease-out;
+}
+
+@keyframes flashEffect {
+  0% { opacity: 0; }
+  15% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+/* Corners */
+.corner {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border-color: #8b5cf6;
+  z-index: 31;
+  opacity: 0.7;
+}
+
+.top-left {
+  top: 20px;
+  left: 20px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+
+.top-right {
+  top: 20px;
+  right: 20px;
+  border-top: 2px solid;
+  border-right: 2px solid;
+}
+
+.bottom-left {
+  bottom: 20px;
+  left: 20px;
+  border-bottom: 2px solid;
+  border-left: 2px solid;
+}
+
+.bottom-right {
+  bottom: 20px;
+  right: 20px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+
+</style>
 </head>
 
 <body>
 
-  <div id="app">
+<div id="app">
 
-    <div id="ui">
-      <h1>JJK AR EXPERIENCE</h1>
-      <div id="status">SYSTEM READY</div>
-    </div>
+  <video id="webcam" autoplay playsinline></video>
 
-    <div class="corner top-left"></div>
-    <div class="corner top-right"></div>
-    <div class="corner bottom-left"></div>
-    <div class="corner bottom-right"></div>
+  <canvas id="handCanvas"></canvas>
 
-    <video id="webcam" autoplay playsinline></video>
+  <div id="voidOverlay"></div>
 
-    <canvas id="output"></canvas>
+  <canvas id="voidCanvas"></canvas>
 
-    <button id="startBtn">ACTIVATE CURSED ENERGY</button>
+  <div class="ring"></div>
+  <div class="ring"></div>
+  <div class="ring"></div>
 
+  <div id="flash"></div>
+
+  <div id="domainText">
+    <div class="japanese">無量空処</div>
+    <div class="domain-name">UNLIMITED VOID</div>
   </div>
 
+  <div id="ui">
+    <h1>JJK AR EXPERIENCE</h1>
+    <div id="status">SYSTEM READY</div>
+  </div>
 
-  <!-- MediaPipe Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <div class="corner top-left"></div>
+  <div class="corner top-right"></div>
+  <div class="corner bottom-left"></div>
+  <div class="corner bottom-right"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <button id="startBtn">ACTIVATE CURSED ENERGY</button>
 
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-
-
-  <script>
-
-    const videoElement = document.getElementById("webcam");
-    const canvasElement = document.getElementById("output");
-    const canvasCtx = canvasElement.getContext("2d");
-
-    const startBtn = document.getElementById("startBtn");
-    const status = document.getElementById("status");
+</div>
 
 
-    // Resize Canvas
-    function resizeCanvas() {
-      canvasElement.width = window.innerWidth;
-      canvasElement.height = window.innerHeight;
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+
+<script>
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const videoElement = document.getElementById("webcam");
+
+const handCanvas = document.getElementById("handCanvas");
+const handCtx = handCanvas.getContext("2d");
+
+const voidCanvas = document.getElementById("voidCanvas");
+const voidCtx = voidCanvas.getContext("2d");
+
+const status = document.getElementById("status");
+const startBtn = document.getElementById("startBtn");
+
+const voidOverlay = document.getElementById("voidOverlay");
+const domainText = document.getElementById("domainText");
+const flash = document.getElementById("flash");
+
+const rings = document.querySelectorAll(".ring");
+
+let gojoActive = false;
+let particles = [];
+let animationId;
+
+
+/* =========================
+   CANVAS RESIZE
+========================= */
+
+function resizeCanvas() {
+
+  handCanvas.width = window.innerWidth;
+  handCanvas.height = window.innerHeight;
+
+  voidCanvas.width = window.innerWidth;
+  voidCanvas.height = window.innerHeight;
+
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+
+/* =========================
+   PARTICLES
+========================= */
+
+class Particle {
+
+  constructor() {
+
+    this.reset(true);
+
+  }
+
+  reset(initial = false) {
+
+    const angle = Math.random() * Math.PI * 2;
+
+    const radius = initial
+      ? Math.random() * Math.max(window.innerWidth, window.innerHeight)
+      : Math.max(window.innerWidth, window.innerHeight);
+
+    this.x =
+      voidCanvas.width / 2 +
+      Math.cos(angle) * radius;
+
+    this.y =
+      voidCanvas.height / 2 +
+      Math.sin(angle) * radius;
+
+    this.angle = angle;
+
+    this.radius = radius;
+
+    this.speed = 0.002 + Math.random() * 0.008;
+
+    this.size = 1 + Math.random() * 3;
+
+    this.alpha = 0.3 + Math.random() * 0.7;
+
+  }
+
+
+  update() {
+
+    /* Spiral towards center */
+
+    this.angle += this.speed;
+
+    this.radius *= 0.985;
+
+    this.x =
+      voidCanvas.width / 2 +
+      Math.cos(this.angle) * this.radius;
+
+    this.y =
+      voidCanvas.height / 2 +
+      Math.sin(this.angle) * this.radius;
+
+
+    if (this.radius < 5) {
+      this.reset(false);
     }
 
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
+  }
 
 
-    // MediaPipe Hands
-    const hands = new Hands({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-      }
-    });
+  draw() {
+
+    voidCtx.beginPath();
+
+    voidCtx.arc(
+      this.x,
+      this.y,
+      this.size,
+      0,
+      Math.PI * 2
+    );
+
+    voidCtx.fillStyle =
+      `rgba(190, 130, 255, ${this.alpha})`;
+
+    voidCtx.shadowBlur = 15;
+    voidCtx.shadowColor = "#8b5cf6";
+
+    voidCtx.fill();
+
+  }
+
+}
 
 
-    hands.setOptions({
-      maxNumHands: 2,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.7,
-      minTrackingConfidence: 0.7
-    });
+/* Create particles */
+
+function createParticles() {
+
+  particles = [];
+
+  for (let i = 0; i < 450; i++) {
+    particles.push(new Particle());
+  }
+
+}
 
 
-    hands.onResults(onResults);
+/* Animate void */
+
+function animateVoid() {
+
+  voidCtx.fillStyle =
+    "rgba(3, 0, 12, 0.18)";
+
+  voidCtx.fillRect(
+    0,
+    0,
+    voidCanvas.width,
+    voidCanvas.height
+  );
 
 
-    function onResults(results) {
+  particles.forEach(particle => {
 
-      canvasCtx.save();
+    particle.update();
+    particle.draw();
 
-      canvasCtx.clearRect(
-        0,
-        0,
-        canvasElement.width,
-        canvasElement.height
+  });
+
+
+  animationId =
+    requestAnimationFrame(animateVoid);
+
+}
+
+
+/* =========================
+   GOJO ACTIVATION
+========================= */
+
+function activateGojo() {
+
+  if (gojoActive) return;
+
+  gojoActive = true;
+
+  status.innerText = "GOJO POSE DETECTED";
+
+  setTimeout(() => {
+
+    status.innerText = "CURSED ENERGY RISING...";
+
+    flash.classList.add("active");
+
+  }, 500);
+
+
+  setTimeout(() => {
+
+    voidOverlay.classList.add("active");
+
+    voidCanvas.classList.add("active");
+
+    rings.forEach(ring =>
+      ring.classList.add("active")
+    );
+
+    createParticles();
+
+    animateVoid();
+
+  }, 1000);
+
+
+  setTimeout(() => {
+
+    status.innerText =
+      "DOMAIN EXPANSION";
+
+    domainText.classList.add("active");
+
+  }, 1800);
+
+
+  /* Reset */
+
+  setTimeout(() => {
+
+    gojoActive = false;
+
+    voidOverlay.classList.remove("active");
+
+    voidCanvas.classList.remove("active");
+
+    domainText.classList.remove("active");
+
+    rings.forEach(ring =>
+      ring.classList.remove("active")
+    );
+
+    cancelAnimationFrame(animationId);
+
+    voidCtx.clearRect(
+      0,
+      0,
+      voidCanvas.width,
+      voidCanvas.height
+    );
+
+    status.innerText =
+      "SHOW GOJO HAND SIGN";
+
+  }, 9000);
+
+}
+
+
+/* =========================
+   GOJO GESTURE
+========================= */
+
+function isGojoPose(hand) {
+
+  const indexUp =
+    hand[8].y < hand[6].y;
+
+  const middleUp =
+    hand[12].y < hand[10].y;
+
+  const ringDown =
+    hand[16].y > hand[14].y;
+
+  const pinkyDown =
+    hand[20].y > hand[18].y;
+
+
+  return (
+    indexUp &&
+    middleUp &&
+    ringDown &&
+    pinkyDown
+  );
+
+}
+
+
+/* =========================
+   MEDIAPIPE HANDS
+========================= */
+
+const hands = new Hands({
+
+  locateFile: (file) => {
+
+    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+
+  }
+
+});
+
+
+hands.setOptions({
+
+  maxNumHands: 2,
+
+  modelComplexity: 1,
+
+  minDetectionConfidence: 0.7,
+
+  minTrackingConfidence: 0.7
+
+});
+
+
+hands.onResults(onResults);
+
+
+function onResults(results) {
+
+  handCtx.clearRect(
+    0,
+    0,
+    handCanvas.width,
+    handCanvas.height
+  );
+
+
+  if (results.multiHandLandmarks) {
+
+    let poseDetected = false;
+
+
+    results.multiHandLandmarks.forEach(landmarks => {
+
+      drawConnectors(
+        handCtx,
+        landmarks,
+        HAND_CONNECTIONS,
+        {
+          color: "#9d4edd",
+          lineWidth: 4
+        }
       );
 
 
-      if (results.multiHandLandmarks) {
-
-        results.multiHandLandmarks.forEach((landmarks) => {
-
-          drawConnectors(
-            canvasCtx,
-            landmarks,
-            HAND_CONNECTIONS,
-            {
-              color: "#9d4edd",
-              lineWidth: 4
-            }
-          );
+      drawLandmarks(
+        handCtx,
+        landmarks,
+        {
+          color: "#ffffff",
+          lineWidth: 2,
+          radius: 5
+        }
+      );
 
 
-          drawLandmarks(
-            canvasCtx,
-            landmarks,
-            {
-              color: "#ffffff",
-              lineWidth: 2,
-              radius: 5
-            }
-          );
+      if (isGojoPose(landmarks)) {
 
-        });
-
-        status.innerText = "CURSED ENERGY DETECTED ✦";
-
-      } else {
-
-        status.innerText = "SEARCHING FOR HANDS...";
+        poseDetected = true;
 
       }
 
-      canvasCtx.restore();
+    });
+
+
+    if (poseDetected && !gojoActive) {
+
+      activateGojo();
 
     }
 
+    else if (!gojoActive) {
 
-    startBtn.addEventListener("click", async () => {
+      status.innerText =
+        "SHOW GOJO HAND SIGN";
 
-      try {
+    }
 
-        status.innerText = "ACTIVATING CAMERA...";
+  }
 
-        const stream = await navigator.mediaDevices.getUserMedia({
+}
+
+
+/* =========================
+   CAMERA
+========================= */
+
+startBtn.addEventListener(
+  "click",
+  async () => {
+
+    try {
+
+      status.innerText =
+        "ACTIVATING CAMERA...";
+
+
+      const stream =
+        await navigator.mediaDevices.getUserMedia({
+
           video: true,
           audio: false
+
         });
 
 
-        videoElement.srcObject = stream;
+      videoElement.srcObject = stream;
 
-        await videoElement.play();
+      await videoElement.play();
+
+      startBtn.style.display =
+        "none";
 
 
-        startBtn.style.display = "none";
-
-
-        const camera = new Camera(videoElement, {
+      const camera =
+        new Camera(videoElement, {
 
           onFrame: async () => {
 
@@ -279,28 +752,34 @@
           },
 
           width: 1280,
+
           height: 720
 
         });
 
 
-        camera.start();
+      camera.start();
 
-        status.innerText = "HAND TRACKING ACTIVE";
 
-      }
+      status.innerText =
+        "SHOW GOJO HAND SIGN";
 
-      catch (error) {
 
-        console.error(error);
+    }
 
-        status.innerText = "CAMERA ACCESS DENIED";
+    catch (error) {
 
-      }
+      console.error(error);
 
-    });
+      status.innerText =
+        "CAMERA ACCESS DENIED";
 
-  </script>
+    }
+
+  }
+);
+
+</script>
 
 </body>
 </html>
